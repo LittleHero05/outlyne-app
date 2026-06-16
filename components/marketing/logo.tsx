@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BRAND } from "@/lib/assets";
 import { cn } from "@/lib/utils";
 
 type LogoProps = {
@@ -8,7 +9,11 @@ type LogoProps = {
   iconSize?: number;
 };
 
-export function Logo({ className, showWordmark = true, iconSize = 40 }: LogoProps) {
+export function Logo({
+  className,
+  showWordmark = true,
+  iconSize = 40,
+}: LogoProps) {
   return (
     <Link
       href="/"
@@ -16,7 +21,7 @@ export function Logo({ className, showWordmark = true, iconSize = 40 }: LogoProp
       aria-label="Outlyne home"
     >
       <Image
-        src="/brand/logo-mark.png"
+        src={BRAND.logoMark}
         alt=""
         width={iconSize}
         height={iconSize}
@@ -25,10 +30,10 @@ export function Logo({ className, showWordmark = true, iconSize = 40 }: LogoProp
       />
       {showWordmark ? (
         <Image
-          src="/brand/wordmark.png"
+          src={BRAND.wordmark}
           alt="Outlyne"
-          width={120}
-          height={28}
+          width={102}
+          height={26}
           className="h-7 w-auto shrink-0"
           priority
         />
@@ -40,11 +45,14 @@ export function Logo({ className, showWordmark = true, iconSize = 40 }: LogoProp
 export function LogoMark({ className }: { className?: string }) {
   return (
     <Image
-      src="/brand/logo-mark.png"
+      src={BRAND.logoMark}
       alt=""
       width={300}
       height={300}
-      className={cn("size-[220px] shrink-0 sm:size-[260px] lg:size-[300px]", className)}
+      className={cn(
+        "size-[220px] shrink-0 sm:size-[260px] lg:size-[300px]",
+        className,
+      )}
       priority
     />
   );
