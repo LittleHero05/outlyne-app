@@ -86,6 +86,10 @@ function RatingLockup({
 /** Figma: Pages/Time sit close together as a centered pair, not full-width halves */
 const tightPairClassName = "mt-5 inline-grid grid-cols-2 gap-x-3 sm:gap-x-4";
 
+/**
+ * Transparent Story overlay — no card fill, border, or scrim.
+ * Optional photo is full-bleed content behind the stats (not a “frame”).
+ */
 export const ReadingCard = forwardRef<HTMLElement, ReadingCardProps>(
   function ReadingCard({ details, outlineColorId, className }, ref) {
     const activity = getActivity("reading");
@@ -93,24 +97,18 @@ export const ReadingCard = forwardRef<HTMLElement, ReadingCardProps>(
     const pace = readingPace(details.pagesRead, details.time);
     const rating = details.rating.trim() ? formatRating(details.rating) : null;
     const hasPhoto = Boolean(details.imagePreviewUrl);
-    const contentColor = hasPhoto ? "#ffffff" : outline.hex;
+    // Overlay ink always follows customize color (readable on photos the user chose).
+    const contentColor = outline.hex;
 
     return (
       <article
         ref={ref}
-        className={cn(
-          "relative w-full overflow-hidden rounded-[40px] shadow-lg",
-          !hasPhoto && "bg-transparent",
-          className,
-        )}
+        className={cn("relative w-full bg-transparent", className)}
         aria-label="Reading overlay preview"
         style={{ aspectRatio: STORY_EXPORT.cssRatio }}
       >
         <div
-          className={cn(
-            "relative flex h-full w-full flex-col items-center justify-center px-6 py-10 text-center",
-            !hasPhoto && "rounded-[40px] border-2 bg-outlyne-surface/40",
-          )}
+          className="relative flex h-full w-full flex-col items-center justify-center px-6 py-10 text-center"
           style={{
             ...(hasPhoto
               ? {
@@ -118,28 +116,10 @@ export const ReadingCard = forwardRef<HTMLElement, ReadingCardProps>(
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }
-              : {
-                  borderColor: outline.hex,
-                }),
+              : undefined),
             color: contentColor,
           }}
         >
-          {hasPhoto ? (
-            <div className="absolute inset-0 bg-black/35" aria-hidden />
-          ) : null}
-
-          <div
-            className="absolute left-3 top-3 z-10 size-5 sm:left-4 sm:top-4 sm:size-6"
-            aria-hidden
-          >
-            <ActivityIcon
-              src={BRAND.logoMark}
-              alt=""
-              color={hasPhoto ? "#ffffff" : outline.hex}
-              className="size-full"
-            />
-          </div>
-
           <div className="relative z-10 flex w-full flex-col items-center">
             <ActivityIcon
               src={activity.iconSrc}
@@ -185,6 +165,19 @@ export const ReadingCard = forwardRef<HTMLElement, ReadingCardProps>(
                 </div>
               </div>
             ) : null}
+
+            {/* Brand mark under stats — survives transparent exports better than top-left */}
+            <div className="mt-8 flex flex-col items-center gap-1">
+              <ActivityIcon
+                src={BRAND.logoMark}
+                alt=""
+                color={outline.hex}
+                className="size-5 sm:size-6"
+              />
+              <p className="text-[8px] font-semibold uppercase tracking-[0.2em] opacity-80 sm:text-[9px]">
+                Outlyne
+              </p>
+            </div>
           </div>
         </div>
       </article>
