@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { toPng } from "html-to-image";
+import { useEffect, useRef, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { ReadingCard } from "@/components/generate/reading-card";
-import { STORY_EXPORT, type OutlineColorId } from "@/lib/customize";
+import { downloadCardPng } from "@/lib/download-image";
+import type { OutlineColorId } from "@/lib/customize";
 import type { ReadingDetails } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -34,28 +34,34 @@ export function PreviewStep({
   const cardRef = useRef<HTMLElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
+  const [hint, setHint] = useState("");
+  const [mobile, setMobile] = useState(false);
+
+  useEffect(() => {
+    setMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+  }, []);
 
   async function handleDownload() {
     if (!cardRef.current || downloading) return;
 
     setDownloading(true);
     setError("");
+    setHint("");
 
     try {
-      const pixelRatio = STORY_EXPORT.width / cardRef.current.offsetWidth;
+      const result = await downloadCardPng(
+        cardRef.current,
+        `outlyne-${slugify(details.title)}.png`,
+        { transparentBackground: details.imagePreviewUrl == null },
+      );
 
-      const dataUrl = await toPng(cardRef.current, {
-        cacheBust: true,
-        pixelRatio: Math.max(pixelRatio, 2),
-        // Transparent when no photo background
-        backgroundColor:
-          details.imagePreviewUrl == null ? "transparent" : undefined,
-      });
-
-      const link = document.createElement("a");
-      link.download = `outlyne-${slugify(details.title)}.png`;
-      link.href = dataUrl;
-      link.click();
+      if (result === "shared") {
+        setHint("Use the share sheet → Save Image or Save to Files.");
+      } else if (result === "opened") {
+        setHint(
+          "Image opened — long-press it and choose Save Image if needed.",
+        );
+      }
     } catch (downloadError) {
       console.error("Download failed:", downloadError);
       setError("Could not download. Please try again.");
@@ -79,13 +85,19 @@ export function PreviewStep({
       </div>
 
       <p className="mt-6 text-center text-sm text-outlyne-muted">
-        Downloads as a Story-sized PNG (1080 × 1920). Overlay it onto any photo
-        or carousel slide.
+        Story-sized PNG (1080 × 1920). On phone, use the share sheet to Save
+        Image.
       </p>
 
       {error ? (
         <p className="mt-3 text-center text-sm text-red-700" role="alert">
           {error}
+        </p>
+      ) : null}
+
+      {hint ? (
+        <p className="mt-3 text-center text-sm text-outlyne-text" role="status">
+          {hint}
         </p>
       ) : null}
 
@@ -109,7 +121,11 @@ export function PreviewStep({
             "h-[52px] min-w-[160px] rounded-[20px] px-6 text-lg font-medium disabled:opacity-70",
           )}
         >
-          {downloading ? "Downloading…" : "Download"}
+          {downloading
+            ? "Preparing…"
+            : mobile
+              ? "Save / Share"
+              : "Download"}
         </button>
         <button
           type="button"
