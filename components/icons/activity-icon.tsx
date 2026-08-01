@@ -5,8 +5,10 @@ type ActivityIconProps = {
   src: string;
   alt?: string;
   className?: string;
-  /** White icon for photo overlay cards */
+  /** White icon for photo overlay cards when no outline color is set */
   variant?: "default" | "on-photo";
+  /** Tints a single-color SVG via CSS mask */
+  color?: string;
 };
 
 export function ActivityIcon({
@@ -14,7 +16,30 @@ export function ActivityIcon({
   alt = "",
   className,
   variant = "default",
+  color,
 }: ActivityIconProps) {
+  if (color) {
+    return (
+      <span
+        role={alt ? "img" : undefined}
+        aria-label={alt || undefined}
+        aria-hidden={alt ? undefined : true}
+        className={cn("inline-block shrink-0", className)}
+        style={{
+          backgroundColor: color,
+          maskImage: `url(${src})`,
+          WebkitMaskImage: `url(${src})`,
+          maskSize: "contain",
+          WebkitMaskSize: "contain",
+          maskRepeat: "no-repeat",
+          WebkitMaskRepeat: "no-repeat",
+          maskPosition: "center",
+          WebkitMaskPosition: "center",
+        }}
+      />
+    );
+  }
+
   return (
     <Image
       src={src}

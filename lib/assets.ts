@@ -2,6 +2,7 @@
 export const BRAND = {
   logoMark: "/brand/logo-mark.svg",
   wordmark: "/brand/wordmark.svg",
+  ratingStar: "/brand/RatingStar.svg",
 } as const;
 
 export const ICONS = {
