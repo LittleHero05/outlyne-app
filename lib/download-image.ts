@@ -63,7 +63,7 @@ export async function downloadCardPng(
   node: HTMLElement,
   filename: string,
   options: CaptureOptions = {},
-): Promise<"shared" | "downloaded" | "opened"> {
+): Promise<"shared" | "downloaded" | "opened" | "cancelled"> {
   const blob = await capturePngBlob(node, options);
   const file = new File([blob], filename, { type: "image/png" });
 
@@ -75,9 +75,9 @@ export async function downloadCardPng(
       });
       return "shared";
     } catch (error) {
-      // User dismissed the sheet — treat as success (no error toast).
+      // User dismissed the sheet — don't treat as a completed save.
       if (error instanceof DOMException && error.name === "AbortError") {
-        return "shared";
+        return "cancelled";
       }
       // Fall through to download / open fallbacks.
     }

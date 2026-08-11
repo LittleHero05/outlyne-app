@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
+import {
+  EmailCaptureModal,
+  type EmailCaptureVariant,
+} from "@/components/generate/email-capture-modal";
 import { ReadingCard } from "@/components/generate/reading-card";
 import { downloadCardPng } from "@/lib/download-image";
+import { shouldAskForEmailCapture } from "@/lib/post-download-email";
 import type { OutlineColorId } from "@/lib/customize";
 import type { ReadingDetails } from "@/types";
 import { cn } from "@/lib/utils";
@@ -36,10 +41,44 @@ export function PreviewStep({
   const [error, setError] = useState("");
   const [hint, setHint] = useState("");
   const [mobile, setMobile] = useState(false);
+  const [emailVariant, setEmailVariant] =
+    useState<EmailCaptureVariant | null>(null);
+  const restartAfterEmailClose = useRef(false);
+  const emailPromptTimeoutRef = useRef<number | null>(null);
+
+  function clearEmailPromptTimeout() {
+    if (emailPromptTimeoutRef.current != null) {
+      window.clearTimeout(emailPromptTimeoutRef.current);
+      emailPromptTimeoutRef.current = null;
+    }
+  }
 
   useEffect(() => {
     setMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
   }, []);
+
+  useEffect(() => {
+    return () => clearEmailPromptTimeout();
+  }, []);
+
+  const closeEmailModal = useCallback(() => {
+    clearEmailPromptTimeout();
+    setEmailVariant(null);
+    if (restartAfterEmailClose.current) {
+      restartAfterEmailClose.current = false;
+      onRestart();
+    }
+  }, [onRestart]);
+
+  function handleNewCard() {
+    clearEmailPromptTimeout();
+    if (shouldAskForEmailCapture()) {
+      restartAfterEmailClose.current = true;
+      setEmailVariant("new-card");
+      return;
+    }
+    onRestart();
+  }
 
   async function handleDownload() {
     if (!cardRef.current || downloading) return;
@@ -56,12 +95,27 @@ export function PreviewStep({
         { transparentBackground: true },
       );
 
+      if (result === "cancelled") {
+        return;
+      }
+
       if (result === "shared") {
         setHint("Use the share sheet → Save Image or Save to Files.");
       } else if (result === "opened") {
         setHint(
           "Image opened — long-press it and choose Save Image if needed.",
         );
+      }
+
+      if (shouldAskForEmailCapture()) {
+        // Let the share sheet / download settle before showing the modal.
+        clearEmailPromptTimeout();
+        emailPromptTimeoutRef.current = window.setTimeout(() => {
+          emailPromptTimeoutRef.current = null;
+          if (!shouldAskForEmailCapture()) return;
+          // Don't overwrite an active new-card (or other) prompt.
+          setEmailVariant((current) => current ?? "download");
+        }, 400);
       }
     } catch (downloadError) {
       console.error("Download failed:", downloadError);
@@ -131,7 +185,7 @@ export function PreviewStep({
         </button>
         <button
           type="button"
-          onClick={onRestart}
+          onClick={handleNewCard}
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
             "h-[52px] rounded-[20px] border-outlyne-text/20 bg-outlyne-surface px-6 text-lg font-medium text-outlyne-text",
@@ -140,6 +194,12 @@ export function PreviewStep({
           New card
         </button>
       </div>
+
+      <EmailCaptureModal
+        open={emailVariant !== null}
+        variant={emailVariant ?? "download"}
+        onClose={closeEmailModal}
+      />
     </div>
   );
 }
