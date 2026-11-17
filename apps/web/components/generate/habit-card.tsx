@@ -7,7 +7,6 @@ import {
   Stat,
   tightPairClassName,
 } from "@/components/generate/card-primitives";
-import { getActivity } from "@/lib/activities";
 import {
   formatHabitToday,
   formatStreak,
@@ -24,14 +23,13 @@ type HabitCardProps = {
 
 export const HabitCard = forwardRef<HTMLElement, HabitCardProps>(
   function HabitCard({ details, outlineColorId, className }, ref) {
-    const activity = getActivity("habit");
     const color = getOutlineColor(outlineColorId).hex;
 
     return (
       <CardShell
         ref={ref}
         ariaLabel="Habit overlay preview"
-        iconSrc={activity.iconSrc}
+        icon="habit"
         color={color}
         imagePreviewUrl={details.imagePreviewUrl}
         className={className}

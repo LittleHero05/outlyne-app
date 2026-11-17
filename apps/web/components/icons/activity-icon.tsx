@@ -1,56 +1,40 @@
-import Image from "next/image";
+import { ShapeSvg } from "@/components/icons/shape-svg";
+import { COLORS, ICON_SHAPES, type IconName } from "@outlyne/core";
 import { cn } from "@/lib/utils";
 
 type ActivityIconProps = {
-  src: string;
-  alt?: string;
-  className?: string;
-  /** White icon for photo overlay cards when no outline color is set */
-  variant?: "default" | "on-photo";
-  /** Tints a single-color SVG via CSS mask */
+  name: IconName;
+  /** Any CSS color. Defaults to brand maroon. */
   color?: string;
+  /** Accessible name. Omit for decorative icons. */
+  label?: string;
+  className?: string;
 };
 
+/**
+ * Activity icons and brand marks drawn inline from @outlyne/core shape data,
+ * so they tint to any outline color and export crisply with html-to-image.
+ * The icon scales to fit the box set by className, keeping its proportions.
+ */
 export function ActivityIcon({
-  src,
-  alt = "",
+  name,
+  color = COLORS.accentMaroon,
+  label,
   className,
-  variant = "default",
-  color,
 }: ActivityIconProps) {
-  if (color) {
-    return (
-      <span
-        role={alt ? "img" : undefined}
-        aria-label={alt || undefined}
-        aria-hidden={alt ? undefined : true}
-        className={cn("inline-block shrink-0", className)}
-        style={{
-          backgroundColor: color,
-          maskImage: `url(${src})`,
-          WebkitMaskImage: `url(${src})`,
-          maskSize: "contain",
-          WebkitMaskSize: "contain",
-          maskRepeat: "no-repeat",
-          WebkitMaskRepeat: "no-repeat",
-          maskPosition: "center",
-          WebkitMaskPosition: "center",
-        }}
-      />
-    );
-  }
-
+  const icon = ICON_SHAPES[name];
   return (
-    <Image
-      src={src}
-      alt={alt}
-      width={64}
-      height={64}
-      className={cn(
-        "object-contain",
-        variant === "on-photo" && "brightness-0 invert",
-        className,
-      )}
-    />
+    <svg
+      viewBox={`0 0 ${icon.width} ${icon.height}`}
+      preserveAspectRatio="xMidYMid meet"
+      className={cn("inline-block shrink-0", className)}
+      role={label ? "img" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+    >
+      {icon.shapes.map((shape, index) => (
+        <ShapeSvg key={index} shape={shape} color={color} />
+      ))}
+    </svg>
   );
 }

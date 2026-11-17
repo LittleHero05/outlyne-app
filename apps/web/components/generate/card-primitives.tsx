@@ -2,7 +2,7 @@
 
 import { forwardRef, type ReactNode } from "react";
 import { ActivityIcon } from "@/components/icons/activity-icon";
-import { BRAND } from "@/lib/assets";
+import type { IconName } from "@outlyne/core";
 import { cn } from "@/lib/utils";
 import { STORY_EXPORT } from "@outlyne/core";
 
@@ -45,8 +45,7 @@ export function BrandMark({ color }: { color: string }) {
   return (
     <div className="mt-8 flex flex-col items-center gap-1">
       <ActivityIcon
-        src={BRAND.logoMark}
-        alt=""
+        name="logo"
         color={color}
         className="size-5 sm:size-6"
       />
@@ -60,7 +59,7 @@ export function BrandMark({ color }: { color: string }) {
 type CardShellProps = {
   ariaLabel: string;
   /** Omit to give the content more vertical room (e.g. Workout body map) */
-  iconSrc?: string;
+  icon?: IconName;
   color: string;
   imagePreviewUrl: string | null;
   className?: string;
@@ -73,7 +72,7 @@ type CardShellProps = {
  */
 export const CardShell = forwardRef<HTMLElement, CardShellProps>(
   function CardShell(
-    { ariaLabel, iconSrc, color, imagePreviewUrl, className, children },
+    { ariaLabel, icon, color, imagePreviewUrl, className, children },
     ref,
   ) {
     return (
@@ -97,10 +96,9 @@ export const CardShell = forwardRef<HTMLElement, CardShellProps>(
           }}
         >
           <div className="relative z-10 flex w-full flex-col items-center">
-            {iconSrc ? (
+            {icon ? (
               <ActivityIcon
-                src={iconSrc}
-                alt=""
+                name={icon}
                 color={color}
                 className="mb-6 h-16 w-16 sm:h-20 sm:w-20"
               />

@@ -8,7 +8,6 @@ import {
   tightPairClassName,
 } from "@/components/generate/card-primitives";
 import { RatingStat } from "@/components/generate/reading-card";
-import { getActivity } from "@/lib/activities";
 import {
   formatRating,
   formatRecipeBy,
@@ -26,7 +25,6 @@ type RecipeCardProps = {
 
 export const RecipeCard = forwardRef<HTMLElement, RecipeCardProps>(
   function RecipeCard({ details, outlineColorId, className }, ref) {
-    const activity = getActivity("recipe");
     const color = getOutlineColor(outlineColorId).hex;
     const rating = details.rating.trim() ? formatRating(details.rating) : null;
 
@@ -34,7 +32,7 @@ export const RecipeCard = forwardRef<HTMLElement, RecipeCardProps>(
       <CardShell
         ref={ref}
         ariaLabel="Recipe overlay preview"
-        iconSrc={activity.iconSrc}
+        icon="recipe"
         color={color}
         imagePreviewUrl={details.imagePreviewUrl}
         className={className}

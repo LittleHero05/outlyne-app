@@ -8,8 +8,7 @@ import {
   statLabelClassName,
   tightPairClassName,
 } from "@/components/generate/card-primitives";
-import { BRAND } from "@/lib/assets";
-import { getActivity } from "@/lib/activities";
+import { ActivityIcon } from "@/components/icons/activity-icon";
 import { cn } from "@/lib/utils";
 import {
   formatRating,
@@ -38,21 +37,7 @@ export function RatingLockup({
       style={{ color }}
       aria-label={`Rating ${rating}`}
     >
-      <span
-        aria-hidden
-        className="size-4 shrink-0 sm:size-[18px]"
-        style={{
-          backgroundColor: color,
-          maskImage: `url(${BRAND.ratingStar})`,
-          WebkitMaskImage: `url(${BRAND.ratingStar})`,
-          maskSize: "contain",
-          WebkitMaskSize: "contain",
-          maskRepeat: "no-repeat",
-          WebkitMaskRepeat: "no-repeat",
-          maskPosition: "center",
-          WebkitMaskPosition: "center",
-        }}
-      />
+      <ActivityIcon name="star" color={color} className="size-4 sm:size-[18px]" />
       <span className="whitespace-nowrap text-base font-semibold sm:text-lg">
         {rating}
       </span>
@@ -73,7 +58,6 @@ export function RatingStat({ rating, color }: { rating: string; color: string })
 
 export const ReadingCard = forwardRef<HTMLElement, ReadingCardProps>(
   function ReadingCard({ details, outlineColorId, className }, ref) {
-    const activity = getActivity("reading");
     const color = getOutlineColor(outlineColorId).hex;
     const pace = readingPace(details.pagesRead, details.time);
     const rating = details.rating.trim() ? formatRating(details.rating) : null;
@@ -82,7 +66,7 @@ export const ReadingCard = forwardRef<HTMLElement, ReadingCardProps>(
       <CardShell
         ref={ref}
         ariaLabel="Reading overlay preview"
-        iconSrc={activity.iconSrc}
+        icon="reading"
         color={color}
         imagePreviewUrl={details.imagePreviewUrl}
         className={className}

@@ -11,6 +11,7 @@ import {
   type HowItWorksStepId,
 } from "@/lib/showcase-data";
 import { cn } from "@/lib/utils";
+import type { ActivityType } from "@outlyne/core";
 
 const AUTO_ADVANCE_MS = 4000;
 const SAMPLE_DRAFT = SHOWCASE_DRAFTS[0];
@@ -66,7 +67,7 @@ function StepButton({
   );
 }
 
-function ActivityTile({ label, iconSrc, highlighted }: { label: string; iconSrc: string; highlighted?: boolean }) {
+function ActivityTile({ name, label, highlighted }: { name: ActivityType; label: string; highlighted?: boolean }) {
   return (
     <div
       className={cn(
@@ -74,7 +75,7 @@ function ActivityTile({ label, iconSrc, highlighted }: { label: string; iconSrc:
         highlighted && "ring-2 ring-outlyne-maroon ring-offset-2 ring-offset-outlyne-blue",
       )}
     >
-      <ActivityIcon src={iconSrc} className="mb-2 h-12 w-12" />
+      <ActivityIcon name={name} className="mb-2 h-12 w-12" />
       <p className="text-center text-sm font-medium text-outlyne-text sm:text-base">
         {label}
       </p>
@@ -130,7 +131,7 @@ function StepMockup({ step }: { step: HowItWorksStepId }) {
               <ActivityTile
                 key={tile.label}
                 label={tile.label}
-                iconSrc={tile.iconSrc}
+                name={tile.id}
                 highlighted={index === 0}
               />
             ))}

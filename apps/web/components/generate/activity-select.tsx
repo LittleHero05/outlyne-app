@@ -29,8 +29,7 @@ export function ActivitySelect({ onSelect }: ActivitySelectProps) {
             )}
           >
             <ActivityIcon
-              src={activity.iconSrc}
-              alt=""
+              name={activity.id}
               className="mb-3 h-14 w-14 sm:h-16 sm:w-16"
             />
             <span className="text-center text-lg font-medium text-outlyne-text sm:text-xl">

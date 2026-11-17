@@ -135,8 +135,7 @@ Keep the form state in a small store (Zustand or React context) keyed by
 4. Supabase Auth with Apple sign-in and the `cards` table. Save after export.
 5. ~~Icons and Workout body map in `react-native-svg`~~ Done 2026-11-17. Icon
    and body-map shapes now live in `@outlyne/core` as plain data (`shapes.ts`,
-   `body-map.ts`); web and mobile both draw from it. The web activity icons
-   still use the PNG-mask approach and can move to the shared data next.
+   `body-map.ts`); web and mobile both draw from it, icons included.
 6. Saved cards screen, profile, TestFlight, then App Store submission.
 
 ## 7. Open decisions

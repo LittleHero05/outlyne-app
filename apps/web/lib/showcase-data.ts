@@ -1,4 +1,3 @@
-import { ICONS } from "@/lib/assets";
 import type { ActivityDraft } from "@outlyne/core";
 
 /**
@@ -47,8 +46,8 @@ export const HOW_IT_WORKS_STEPS = [
 export type HowItWorksStepId = (typeof HOW_IT_WORKS_STEPS)[number]["id"];
 
 export const ACTIVITY_TILES = [
-  { label: "Reading", iconSrc: ICONS.reading },
-  { label: "Workout", iconSrc: ICONS.workout },
-  { label: "Habit", iconSrc: ICONS.habit },
-  { label: "Recipe", iconSrc: ICONS.recipe },
+  { id: "reading", label: "Reading" },
+  { id: "workout", label: "Workout" },
+  { id: "habit", label: "Habit" },
+  { id: "recipe", label: "Recipe" },
 ] as const;
