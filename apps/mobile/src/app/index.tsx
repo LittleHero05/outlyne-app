@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { type ActivityType } from "@outlyne/core";
+import { Icon } from "@/components/icon";
 import { Screen, Title } from "@/components/ui";
 import { useDraft } from "@/store/draft";
 import { theme } from "@/theme";
@@ -31,6 +32,9 @@ export default function ActivitySelectScreen() {
             onPress={() => choose(activity.id)}
             style={({ pressed }) => [styles.tile, pressed && styles.tilePressed]}
           >
+            <View style={styles.tileIcon}>
+              <Icon name={activity.id} color={theme.colors.maroon} size={56} />
+            </View>
             <Text style={styles.tileLabel}>{activity.label}</Text>
           </Pressable>
         ))}
@@ -55,5 +59,6 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   tilePressed: { transform: [{ scale: 0.98 }] },
+  tileIcon: { height: 56, justifyContent: "center", marginBottom: 12 },
   tileLabel: { fontSize: 20, fontWeight: "500", color: theme.colors.text },
 });

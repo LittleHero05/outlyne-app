@@ -9,6 +9,7 @@ import {
   type RecipeDetails,
   type WorkoutDetails,
 } from "@outlyne/core";
+import { BodyMap } from "@/components/body-map";
 import { Button, Chip, ChipRow, Field, Label, Screen, Title } from "@/components/ui";
 import { useDraft } from "@/store/draft";
 import { theme } from "@/theme";
@@ -74,6 +75,9 @@ function WorkoutFields({ values, onChange }: FieldsProps<WorkoutDetails>) {
       <Field label="Total sets" placeholder="e.g. 24" keyboardType="number-pad" value={values.sets} onChangeText={(sets) => set({ sets })} />
       <View style={{ marginBottom: theme.space.md }}>
         <Label>Muscles worked</Label>
+        <View style={{ backgroundColor: "rgba(239,239,238,0.85)", borderRadius: theme.radius.lg, padding: theme.space.md, marginBottom: theme.space.sm }}>
+          <BodyMap selected={values.muscles} color={theme.colors.maroon} height={170} />
+        </View>
         <ChipRow>
           {MUSCLE_GROUPS.map((group) => (
             <Chip key={group.id} label={group.label} selected={values.muscles.includes(group.id)} onPress={() => toggle(group.id)} />

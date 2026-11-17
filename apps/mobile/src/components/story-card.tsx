@@ -1,4 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
+import { BodyMap } from "@/components/body-map";
+import { Icon } from "@/components/icon";
 import {
   STORY_EXPORT,
   formatHabitToday,
@@ -18,6 +20,18 @@ type StoryCardProps = {
   outlineColorId: OutlineColorId;
   width: number;
 };
+
+function RatingStat({ rating, color }: { rating: string; color: string }) {
+  return (
+    <View style={styles.stat}>
+      <Text style={[styles.statLabel, { color }]}>Rating</Text>
+      <View style={styles.ratingRow}>
+        <Icon name="star" color={color} size={15} />
+        <Text style={[styles.statValue, styles.ratingValue, { color }]}>{formatRating(rating)}</Text>
+      </View>
+    </View>
+  );
+}
 
 function Stat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
@@ -40,6 +54,11 @@ export function StoryCard({ draft, outlineColorId, width }: StoryCardProps) {
 
   return (
     <View style={[styles.card, { width, height }]}>
+      {draft.activity !== "workout" ? (
+        <View style={styles.icon}>
+          <Icon name={draft.activity} color={color} size={width * 0.2} />
+        </View>
+      ) : null}
       <Text style={[styles.statLabel, { color }]}>{headlineLabel(draft)}</Text>
       <Text style={[styles.headline, { color }]}>{details.title || "Untitled"}</Text>
 
@@ -54,7 +73,7 @@ export function StoryCard({ draft, outlineColorId, width }: StoryCardProps) {
               <Stat label="Pace" value={readingPace(draft.details.pagesRead, draft.details.time)!} color={color} />
             ) : null}
             {draft.details.rating.trim() ? (
-              <Stat label="Rating" value={`★ ${formatRating(draft.details.rating)}`} color={color} />
+              <RatingStat rating={draft.details.rating} color={color} />
             ) : null}
           </View>
         </>
@@ -62,6 +81,9 @@ export function StoryCard({ draft, outlineColorId, width }: StoryCardProps) {
 
       {draft.activity === "workout" ? (
         <>
+          <View style={styles.bodyMap}>
+            <BodyMap selected={draft.details.muscles} color={color} height={width * 0.62} />
+          </View>
           <View style={styles.pair}>
             <Stat label="Sets" value={draft.details.sets || "—"} color={color} />
           </View>
@@ -89,13 +111,16 @@ export function StoryCard({ draft, outlineColorId, width }: StoryCardProps) {
           </View>
           {draft.details.rating.trim() ? (
             <View style={styles.pair}>
-              <Stat label="Rating" value={`★ ${formatRating(draft.details.rating)}`} color={color} />
+              <RatingStat rating={draft.details.rating} color={color} />
             </View>
           ) : null}
         </>
       ) : null}
 
-      <Text style={[styles.brand, { color }]}>OUTLYNE</Text>
+      <View style={styles.brandMark}>
+        <Icon name="logo" color={color} size={18} />
+        <Text style={[styles.brand, { color }]}>OUTLYNE</Text>
+      </View>
     </View>
   );
 }
@@ -127,5 +152,10 @@ const styles = StyleSheet.create({
   stat: { alignItems: "center", maxWidth: 200 },
   statLabel: { fontSize: 11, fontWeight: "600", opacity: 0.9, textAlign: "center" },
   statValue: { fontSize: 18, fontWeight: "600", marginTop: 4, textAlign: "center" },
-  brand: { fontSize: 9, fontWeight: "600", letterSpacing: 2, marginTop: 32, opacity: 0.8 },
+  icon: { marginBottom: 20 },
+  bodyMap: { marginTop: 18 },
+  ratingRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 4 },
+  ratingValue: { marginTop: 0 },
+  brandMark: { alignItems: "center", gap: 4, marginTop: 28 },
+  brand: { fontSize: 8, fontWeight: "600", letterSpacing: 2, opacity: 0.8 },
 });
