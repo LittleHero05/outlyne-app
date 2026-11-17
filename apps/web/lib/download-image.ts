@@ -1,4 +1,4 @@
-import { toBlob } from "html-to-image";
+import { toCanvas } from "html-to-image";
 import { STORY_EXPORT } from "@outlyne/core";
 
 type CaptureOptions = {
@@ -22,30 +22,41 @@ async function capturePngBlob(
   node: HTMLElement,
   options: CaptureOptions = {},
 ): Promise<Blob> {
-  const pixelRatio = Math.min(
-    STORY_EXPORT.width / Math.max(node.offsetWidth, 1),
-    3,
-  );
+  // Render at whatever zoom takes the on-screen card to Story width, then copy
+  // into a fixed 1080×1920 canvas. Canvas sizes truncate fractions, so this
+  // final copy is what guarantees the exact output size at any preview width.
+  const pixelRatio = STORY_EXPORT.width / Math.max(node.offsetWidth, 1);
 
   const exportOptions = {
     cacheBust: true,
-    pixelRatio: Math.max(pixelRatio, 2),
+    pixelRatio,
     backgroundColor: options.transparentBackground
       ? ("transparent" as const)
       : undefined,
   };
 
+  async function renderOnce(): Promise<Blob | null> {
+    const source = await toCanvas(node, exportOptions);
+    const output = document.createElement("canvas");
+    output.width = STORY_EXPORT.width;
+    output.height = STORY_EXPORT.height;
+    const context = output.getContext("2d");
+    if (!context) return null;
+    context.drawImage(source, 0, 0, output.width, output.height);
+    return new Promise((resolve) => output.toBlob(resolve, "image/png"));
+  }
+
   // Safari often returns a blank/tiny canvas on the first pass.
-  await toBlob(node, exportOptions);
+  await renderOnce();
   await new Promise((resolve) => setTimeout(resolve, 120));
 
-  let blob = await toBlob(node, exportOptions);
+  let blob = await renderOnce();
   let attempts = 0;
 
   while ((!blob || blob.size < 2_000) && attempts < 4) {
     attempts += 1;
     await new Promise((resolve) => setTimeout(resolve, 200));
-    blob = await toBlob(node, exportOptions);
+    blob = await renderOnce();
   }
 
   if (!blob || blob.size < 2_000) {
