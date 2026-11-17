@@ -11,5 +11,8 @@
     "start": "npm run start -w @outlyne/web",
     "lint": "npm run lint -w @outlyne/web",
     "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "overrides": {
+    "react-native": "0.88.1"
   }
 }

@@ -7,6 +7,7 @@ Shareable overlay cards for reading, workouts, habits and recipes.
 ```
 apps/
   web/        Next.js site and web generator (deployed to Vercel)
+  mobile/     Expo app (Expo Router, SDK 58) for the App Store
 packages/
   core/       UI-free types, design tokens, muscle groups and formatters
               shared by the web app and the upcoming Expo app

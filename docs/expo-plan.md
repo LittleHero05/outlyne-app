@@ -123,8 +123,9 @@ Keep the form state in a small store (Zustand or React context) keyed by
 
 1. ~~Monorepo move and `packages/core` extraction~~ Done 2026-11-16. The
    Vercel project's Root Directory must be set to `apps/web`.
-2. Expo app scaffold with Expo Router, theme tokens, activity select, and the
-   Reading form reading from `@outlyne/core`.
+2. ~~Expo app scaffold with Expo Router, theme tokens, activity select, and
+   all four forms reading from `@outlyne/core`~~ Done 2026-11-16 in
+   `apps/mobile` (SDK 58, Expo Router in `src/app`, Expo Go for dev).
 3. Native card for Reading plus view-shot export and share sheet. This is the
    riskiest piece, so it comes before the other activities.
 4. Supabase Auth with Apple sign-in and the `cards` table. Save after export.
