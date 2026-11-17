@@ -3,7 +3,9 @@ import { useRef, useState, type ComponentRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { StoryCard } from "@/components/story-card";
 import { Button, Screen, Title } from "@/components/ui";
+import { saveCard } from "@/lib/cards";
 import { captureStoryPng, saveStoryPng, shareStoryPng, storyFileName } from "@/lib/export";
+import { useAuth } from "@/store/auth";
 import { useDraft } from "@/store/draft";
 import { theme } from "@/theme";
 
@@ -12,7 +14,9 @@ const CARD_WIDTH = 280;
 export default function PreviewScreen() {
   const { draft, outlineColorId, reset } = useDraft();
   const cardRef = useRef<ComponentRef<typeof View>>(null);
-  const [busy, setBusy] = useState<"save" | "share" | null>(null);
+  const { session } = useAuth();
+  const [busy, setBusy] = useState<"save" | "share" | "keep" | null>(null);
+  const [kept, setKept] = useState(false);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
 
   if (!draft) return <Redirect href="/" />;
@@ -42,6 +46,24 @@ export default function PreviewScreen() {
       setMessage({ text: "Could not export the card. Please try again.", error: true });
     } finally {
       setBusy(null);
+    }
+  }
+
+  async function keepCard() {
+    if (!draft || busy) return;
+    if (!session) {
+      router.push("/sign-in");
+      return;
+    }
+    setBusy("keep");
+    setMessage(null);
+    const result = await saveCard(draft, outlineColorId);
+    setBusy(null);
+    if (result.ok) {
+      setKept(true);
+      setMessage({ text: "Saved to My cards." });
+    } else {
+      setMessage({ text: result.message, error: true });
     }
   }
 
@@ -80,6 +102,20 @@ export default function PreviewScreen() {
           variant="outline"
           onPress={() => run("share")}
           disabled={busy !== null}
+        />
+        <Button
+          title={
+            kept
+              ? "Saved to My cards"
+              : busy === "keep"
+                ? "Saving…"
+                : session
+                  ? "Save to my cards"
+                  : "Sign in to save"
+          }
+          variant="outline"
+          onPress={keepCard}
+          disabled={busy !== null || kept}
         />
         <View style={styles.row}>
           <Button title="Customize" variant="outline" onPress={() => router.back()} style={styles.small} />

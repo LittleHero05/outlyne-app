@@ -132,7 +132,10 @@ Keep the form state in a small store (Zustand or React context) keyed by
    the iOS share sheet. Known gap: the shared file has a random name because
    view-shot ignores `fileName` on iOS; copy it to a named file before sharing
    if that matters.
-4. Supabase Auth with Apple sign-in and the `cards` table. Save after export.
+4. Supabase Auth and the `cards` table. Email-code sign-in, Save to my cards,
+   and a My cards screen are built (2026-11-17). Pending: run the migration in
+   `supabase/migrations`, add `{{ .Token }}` to the Magic Link email template,
+   then Sign in with Apple once there is a development build.
 5. ~~Icons and Workout body map in `react-native-svg`~~ Done 2026-11-17. Icon
    and body-map shapes now live in `@outlyne/core` as plain data (`shapes.ts`,
    `body-map.ts`); web and mobile both draw from it, icons included.

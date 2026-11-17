@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Stack, router } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { type ActivityType } from "@outlyne/core";
 import { Icon } from "@/components/icon";
@@ -23,6 +23,19 @@ export default function ActivitySelectScreen() {
 
   return (
     <Screen>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => router.push("/cards")}
+              hitSlop={10}
+            >
+              <Text style={styles.headerLink}>My cards</Text>
+            </Pressable>
+          ),
+        }}
+      />
       <Title>Select Activity Type</Title>
       <View style={styles.grid}>
         {ACTIVITIES.map((activity) => (
@@ -59,6 +72,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   tilePressed: { transform: [{ scale: 0.98 }] },
+  headerLink: { fontSize: 16, fontWeight: "600", color: theme.colors.maroon },
   tileIcon: { height: 56, justifyContent: "center", marginBottom: 12 },
   tileLabel: { fontSize: 20, fontWeight: "500", color: theme.colors.text },
 });

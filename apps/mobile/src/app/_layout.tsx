@@ -1,12 +1,14 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AuthProvider } from "@/store/auth";
 import { DraftProvider } from "@/store/draft";
 import { theme } from "@/theme";
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
+      <AuthProvider>
       <DraftProvider>
         <StatusBar style="dark" />
         <Stack
@@ -22,8 +24,11 @@ export default function RootLayout() {
           <Stack.Screen name="generate/[activity]" options={{ title: "Details" }} />
           <Stack.Screen name="generate/customize" options={{ title: "Customize" }} />
           <Stack.Screen name="generate/preview" options={{ title: "Preview" }} />
+          <Stack.Screen name="cards" options={{ title: "My cards" }} />
+          <Stack.Screen name="sign-in" options={{ title: "Sign in", presentation: "modal" }} />
         </Stack>
       </DraftProvider>
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }

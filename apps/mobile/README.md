@@ -26,3 +26,17 @@ npm install
 
 The root `package.json` pins `react-native` through `overrides` so the web app
 never pulls a second copy.
+
+## Accounts and saved cards (Supabase)
+
+1. Copy `.env.example` to `.env.local` and fill in the project URL and the
+   publishable (anon) key from Supabase → Project Settings → API.
+2. Run `supabase/migrations/20261117000000_saved_cards.sql` once in the
+   Supabase dashboard (SQL Editor → New query → Run). It creates the `cards`
+   table, row level security so users only see their own cards, and the
+   20-card free limit.
+3. Make sign-in emails carry a code: Authentication → Emails → Magic Link
+   template, and add `{{ .Token }}` (for example `Your Outlyne code: {{ .Token }}`).
+
+Sign-in uses a 6-digit email code, which works in Expo Go. Sign in with Apple
+needs an Apple Developer account and a development build, and comes later.
