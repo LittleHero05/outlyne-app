@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Outlyne
 
-## Getting Started
+Shareable overlay cards for reading, workouts, habits and recipes.
 
-First, run the development server:
+## Layout
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+apps/
+  web/        Next.js site and web generator (deployed to Vercel)
+packages/
+  core/       UI-free types, design tokens, muscle groups and formatters
+              shared by the web app and the upcoming Expo app
+docs/
+  expo-plan.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+npm workspaces. One lockfile at the root.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Develop
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev        # Next dev server for apps/web on http://localhost:3000
+npm run build
+npm run lint
+npm run typecheck  # every workspace
+```
 
-## Learn More
+Environment variables for the web app live in `apps/web/.env.local`
+(see `apps/web/.env.example`).
 
-To learn more about Next.js, take a look at the following resources:
+## Deploying
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The Vercel project's **Root Directory** must be `apps/web`. Vercel installs
+from the repo root so the `@outlyne/core` workspace link resolves.

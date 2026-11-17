@@ -121,8 +121,8 @@ Keep the form state in a small store (Zustand or React context) keyed by
 
 ## 6. Order of work
 
-1. Monorepo move and `packages/core` extraction (web keeps working, no visual
-   change). One PR.
+1. ~~Monorepo move and `packages/core` extraction~~ Done 2026-11-16. The
+   Vercel project's Root Directory must be set to `apps/web`.
 2. Expo app scaffold with Expo Router, theme tokens, activity select, and the
    Reading form reading from `@outlyne/core`.
 3. Native card for Reading plus view-shot export and share sheet. This is the
