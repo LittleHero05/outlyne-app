@@ -8,9 +8,9 @@ export function SiteFooter() {
   return (
     <footer
       id="about"
-      className="mx-auto max-w-7xl scroll-mt-24 px-6 pb-12 pt-8 lg:px-10"
+      className="scroll-mt-24 px-6 pb-12 lg:px-10"
     >
-      <div className="flex flex-col items-center gap-6 border-t border-outlyne-text/10 pt-10 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 border-t border-outlyne-text/10 pt-10 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
         <Logo />
 
         <p className="max-w-md text-sm leading-relaxed text-outlyne-muted">

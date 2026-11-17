@@ -4,6 +4,7 @@ import { HowItWorksSection } from "@/components/marketing/how-it-works-section";
 import { ShowcaseSection } from "@/components/marketing/showcase-section";
 import { SiteFooter } from "@/components/marketing/site-footer";
 import { SiteHeader } from "@/components/marketing/site-header";
+import { Ticker } from "@/components/marketing/ticker";
 
 export default function LandingPage() {
   return (
@@ -12,6 +13,7 @@ export default function LandingPage() {
       <main>
         <HeroSection />
         <ShowcaseSection />
+        <Ticker />
         <HowItWorksSection />
         <CtaSection />
       </main>

@@ -1,68 +1,50 @@
 import { ICONS } from "@/lib/assets";
+import type { ActivityDraft } from "@/types";
 
-export type ShowcaseStat = {
-  label: string;
-  value: string;
-};
-
-export type ShowcaseCardData = {
-  id: string;
-  activity: string;
-  iconSrc: string;
-  headlineLabel: string;
-  headline: string;
-  stats: [ShowcaseStat, ShowcaseStat];
-  footerLabel: string;
-  footerValue: string;
-};
-
-export const SHOWCASE_CARDS: ShowcaseCardData[] = [
+/**
+ * Sample drafts rendered with the real card components, so the landing
+ * shows exactly what the generator produces.
+ */
+export const SHOWCASE_DRAFTS: ActivityDraft[] = [
   {
-    id: "reading",
-    activity: "Reading",
-    iconSrc: ICONS.reading,
-    headlineLabel: "Book title",
-    headline: "The Hunger Games",
-    stats: [
-      { label: "Pages", value: "101" },
-      { label: "Time", value: "1hr 03min" },
-    ],
-    footerLabel: "Pace",
-    footerValue: "96 pgs/hr",
+    activity: "reading",
+    details: {
+      title: "The Hunger Games",
+      pagesRead: "101",
+      time: "1hr 03min",
+      rating: "4.5",
+      imagePreviewUrl: null,
+    },
   },
   {
-    id: "workout",
-    activity: "Workout",
-    iconSrc: ICONS.workout,
-    headlineLabel: "Split",
-    headline: "Push Day",
-    stats: [
-      { label: "Sets", value: "24" },
-      { label: "Duration", value: "58 min" },
-    ],
-    footerLabel: "PR",
-    footerValue: "Bench +10 lbs",
+    activity: "workout",
+    details: {
+      title: "Push Day",
+      sets: "24",
+      muscles: ["chest", "shoulders", "triceps"],
+      imagePreviewUrl: null,
+    },
   },
   {
-    id: "habit",
-    activity: "Habit",
-    iconSrc: ICONS.habit,
-    headlineLabel: "Habit",
-    headline: "Morning walk",
-    stats: [
-      { label: "Streak", value: "14 days" },
-      { label: "Today", value: "Done" },
-    ],
-    footerLabel: "Minutes",
-    footerValue: "32 min",
+    activity: "habit",
+    details: {
+      title: "Morning walk",
+      days: "14",
+      mode: "minutes",
+      minutes: "32",
+      imagePreviewUrl: null,
+    },
   },
 ];
 
 export const HOW_IT_WORKS_STEPS = [
-  { number: "01", title: "Choose your activity" },
-  { number: "02", title: "Input activity details" },
-  { number: "03", title: "Generate your overlay" },
+  { id: "choose", number: "01", title: "Choose your activity" },
+  { id: "input", number: "02", title: "Input activity details" },
+  { id: "generate", number: "03", title: "Generate your overlay" },
+  { id: "share", number: "04", title: "Share with everyone" },
 ] as const;
+
+export type HowItWorksStepId = (typeof HOW_IT_WORKS_STEPS)[number]["id"];
 
 export const ACTIVITY_TILES = [
   { label: "Reading", iconSrc: ICONS.reading },

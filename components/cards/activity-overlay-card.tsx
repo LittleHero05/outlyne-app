@@ -1,17 +1,25 @@
 import Image from "next/image";
-import { ActivityIcon } from "@/components/icons/activity-icon";
-import type { ShowcaseCardData } from "@/lib/showcase-data";
+import { ActivityCard } from "@/components/generate/activity-card";
+import { getActivity } from "@/lib/activities";
+import type { ActivityDraft } from "@/types";
+import { cn } from "@/lib/utils";
 
 type ActivityOverlayCardProps = {
-  data: ShowcaseCardData;
+  draft: ActivityDraft;
   className?: string;
 };
 
-export function ActivityOverlayCard({ data, className }: ActivityOverlayCardProps) {
+/**
+ * Landing showcase: the real overlay card composited over a sample photo,
+ * the way a user would see it in their Story.
+ */
+export function ActivityOverlayCard({ draft, className }: ActivityOverlayCardProps) {
+  const { label } = getActivity(draft.activity);
+
   return (
-    <article
-      className={`relative mx-auto w-full max-w-[280px] ${className ?? ""}`}
-      aria-label={`${data.activity} overlay example`}
+    <div
+      className={cn("relative mx-auto w-full max-w-[260px]", className)}
+      aria-label={`${label} overlay example`}
     >
       <div className="relative aspect-[9/16] overflow-hidden rounded-[40px] shadow-lg">
         <Image
@@ -21,34 +29,13 @@ export function ActivityOverlayCard({ data, className }: ActivityOverlayCardProp
           className="object-cover"
           sizes="(max-width: 768px) 70vw, 280px"
         />
-
-        <div className="absolute inset-0 flex flex-col items-center justify-center px-6 py-10 text-center text-white">
-          <ActivityIcon
-            src={data.iconSrc}
-            variant="on-photo"
-            className="mb-6 h-24 w-24"
-          />
-
-          <p className="text-xs font-semibold uppercase tracking-wide opacity-90">
-            {data.headlineLabel}
-          </p>
-          <p className="mt-1 text-xl font-semibold leading-tight">{data.headline}</p>
-
-          <div className="mt-5 grid w-full grid-cols-2 gap-4">
-            {data.stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="text-xs font-semibold opacity-90">{stat.label}</p>
-                <p className="mt-1 text-lg font-semibold">{stat.value}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-5">
-            <p className="text-xs font-semibold opacity-90">{data.footerLabel}</p>
-            <p className="mt-1 text-lg font-semibold">{data.footerValue}</p>
-          </div>
-        </div>
+        <div className="absolute inset-0 bg-black/15" aria-hidden />
+        <ActivityCard
+          draft={draft}
+          outlineColorId="white"
+          className="absolute inset-0 h-full"
+        />
       </div>
-    </article>
+    </div>
   );
 }
