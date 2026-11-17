@@ -1,4 +1,4 @@
-import { Redirect, router } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useRef, useState, type ComponentRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { StoryCard } from "@/components/story-card";
@@ -16,7 +16,10 @@ export default function PreviewScreen() {
   const cardRef = useRef<ComponentRef<typeof View>>(null);
   const { session } = useAuth();
   const [busy, setBusy] = useState<"save" | "share" | "keep" | null>(null);
-  const [kept, setKept] = useState(false);
+  // Opened from My cards: the card is already stored, so don't offer a duplicate save.
+  const { from } = useLocalSearchParams<{ from?: string }>();
+  const openedFromSaved = from === "saved";
+  const [kept, setKept] = useState(openedFromSaved);
   const [message, setMessage] = useState<{ text: string; error?: boolean } | null>(null);
 
   if (!draft) return <Redirect href="/" />;
@@ -118,7 +121,14 @@ export default function PreviewScreen() {
           disabled={busy !== null || kept}
         />
         <View style={styles.row}>
-          <Button title="Customize" variant="outline" onPress={() => router.back()} style={styles.small} />
+          <Button
+            title="Customize"
+            variant="outline"
+            onPress={() =>
+              openedFromSaved ? router.push("/generate/customize") : router.back()
+            }
+            style={styles.small}
+          />
           <Button title="New card" variant="outline" onPress={newCard} style={styles.small} />
         </View>
       </View>

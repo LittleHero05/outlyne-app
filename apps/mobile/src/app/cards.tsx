@@ -31,7 +31,7 @@ export default function SavedCardsScreen() {
   function open(row: SavedCardRow) {
     setDraft(rowToDraft(row));
     setOutlineColorId(row.outline_color);
-    router.push("/generate/preview");
+    router.push({ pathname: "/generate/preview", params: { from: "saved" } });
   }
 
   function confirmDelete(row: SavedCardRow) {
