@@ -126,8 +126,12 @@ Keep the form state in a small store (Zustand or React context) keyed by
 2. ~~Expo app scaffold with Expo Router, theme tokens, activity select, and
    all four forms reading from `@outlyne/core`~~ Done 2026-11-16 in
    `apps/mobile` (SDK 58, Expo Router in `src/app`, Expo Go for dev).
-3. Native card for Reading plus view-shot export and share sheet. This is the
-   riskiest piece, so it comes before the other activities.
+3. ~~Native card plus view-shot export and share sheet~~ Done 2026-11-17 for
+   all four activities. Verified in the iPhone 17 Pro simulator: Save to Photos
+   writes a 1080×1920 PNG with a fully transparent background, and Share opens
+   the iOS share sheet. Known gap: the shared file has a random name because
+   view-shot ignores `fileName` on iOS; copy it to a named file before sharing
+   if that matters.
 4. Supabase Auth with Apple sign-in and the `cards` table. Save after export.
 5. Workout (body map in `react-native-svg`), Habit, Recipe.
 6. Saved cards screen, profile, TestFlight, then App Store submission.
