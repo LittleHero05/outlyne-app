@@ -1,10 +1,10 @@
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { FREE_CARD_LIMIT, rowToDraft, type SavedCardRow } from "@outlyne/core";
+import { FREE_CARD_LIMIT, rowToDraft } from "@outlyne/core";
 import { CardThumb } from "@/components/card-thumb";
 import { Button, Screen, Subtitle, Title } from "@/components/ui";
-import { deleteCard, listCards } from "@/lib/cards";
+import { deleteCard, listCards, type SavedCard } from "@/lib/cards";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/store/auth";
 import { useDraft } from "@/store/draft";
@@ -14,8 +14,8 @@ const THUMB_WIDTH = 160;
 
 export default function SavedCardsScreen() {
   const { session } = useAuth();
-  const { setDraft, setOutlineColorId } = useDraft();
-  const [cards, setCards] = useState<SavedCardRow[] | null>(null);
+  const { setDraft, setOutlineColorId, setSavedPhotoPath } = useDraft();
+  const [cards, setCards] = useState<SavedCard[] | null>(null);
   const [error, setError] = useState("");
 
   const load = useCallback(() => {
@@ -28,13 +28,14 @@ export default function SavedCardsScreen() {
 
   useFocusEffect(load);
 
-  function open(row: SavedCardRow) {
-    setDraft(rowToDraft(row));
+  function open(row: SavedCard) {
+    setDraft(rowToDraft(row, row.photoUrl));
     setOutlineColorId(row.outline_color);
+    setSavedPhotoPath(row.photo_path);
     router.push({ pathname: "/generate/preview", params: { from: "saved" } });
   }
 
-  function confirmDelete(row: SavedCardRow) {
+  function confirmDelete(row: SavedCard) {
     Alert.alert("Delete this card?", "This removes it from your saved cards.", [
       { text: "Cancel", style: "cancel" },
       {
@@ -42,7 +43,7 @@ export default function SavedCardsScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            await deleteCard(row.id);
+            await deleteCard(row);
             setCards((current) => current?.filter((card) => card.id !== row.id) ?? null);
           } catch {
             setError("Could not delete the card.");
@@ -89,7 +90,7 @@ export default function SavedCardsScreen() {
             style={({ pressed }) => [styles.thumb, pressed && { opacity: 0.85 }]}
           >
             <CardThumb
-              draft={rowToDraft(row)}
+              draft={rowToDraft(row, row.photoUrl)}
               outlineColorId={row.outline_color}
               width={THUMB_WIDTH}
             />

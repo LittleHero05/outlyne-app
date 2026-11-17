@@ -12,7 +12,7 @@ import { theme } from "@/theme";
 const CARD_WIDTH = 280;
 
 export default function PreviewScreen() {
-  const { draft, outlineColorId, reset } = useDraft();
+  const { draft, outlineColorId, savedPhotoPath, reset } = useDraft();
   const cardRef = useRef<ComponentRef<typeof View>>(null);
   const { session } = useAuth();
   const [busy, setBusy] = useState<"save" | "share" | "keep" | null>(null);
@@ -24,6 +24,7 @@ export default function PreviewScreen() {
 
   if (!draft) return <Redirect href="/" />;
   const fileName = storyFileName(draft.activity, draft.details.title);
+  const hasPhoto = Boolean(draft.details.imagePreviewUrl);
 
   async function run(kind: "save" | "share") {
     if (busy) return;
@@ -35,7 +36,11 @@ export default function PreviewScreen() {
         const result = await saveStoryPng(uri);
         setMessage(
           result === "saved"
-            ? { text: "Saved to Photos. Add it to your Story as a sticker." }
+            ? {
+                text: hasPhoto
+                  ? "Saved to Photos. Post it to your Story."
+                  : "Saved to Photos. Add it to your Story as a sticker.",
+              }
             : { text: "Photos access was declined. You can still Share it.", error: true },
         );
       } else {
@@ -60,7 +65,7 @@ export default function PreviewScreen() {
     }
     setBusy("keep");
     setMessage(null);
-    const result = await saveCard(draft, outlineColorId);
+    const result = await saveCard(draft, outlineColorId, savedPhotoPath);
     setBusy(null);
     if (result.ok) {
       setKept(true);
@@ -87,7 +92,11 @@ export default function PreviewScreen() {
         </View>
       </View>
 
-      <Text style={styles.note}>Story-sized transparent PNG (1080 × 1920).</Text>
+      <Text style={styles.note}>
+        {hasPhoto
+          ? "Story-sized PNG with your photo (1080 × 1920)."
+          : "Story-sized transparent PNG (1080 × 1920)."}
+      </Text>
       {message ? (
         <Text style={[styles.message, message.error && styles.messageError]} accessibilityRole="alert">
           {message.text}

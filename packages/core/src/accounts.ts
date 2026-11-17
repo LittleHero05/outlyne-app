@@ -13,22 +13,35 @@ export type SavedCardRow = {
   activity: ActivityType;
   details: ActivityDraft["details"];
   outline_color: OutlineColorId;
+  /** Path in the private card-photos bucket, or null for a transparent card. */
+  photo_path: string | null;
   created_at: string;
 };
 
-/** Turn a stored row back into a draft the card components can render. */
-export function rowToDraft(row: SavedCardRow): ActivityDraft {
+/** Private Supabase Storage bucket for card background photos. */
+export const CARD_PHOTOS_BUCKET = "card-photos";
+
+/**
+ * Turn a stored row back into a draft the card components can render.
+ * Pass a signed URL for the row's photo to show it behind the card.
+ */
+export function rowToDraft(row: SavedCardRow, photoUrl: string | null = null): ActivityDraft {
   return {
     activity: row.activity,
-    details: { ...row.details, imagePreviewUrl: null },
+    details: { ...row.details, imagePreviewUrl: photoUrl },
   } as ActivityDraft;
 }
 
 /** Shape a draft for insert: local photo URLs never leave the device. */
-export function draftToInsert(draft: ActivityDraft, outlineColorId: OutlineColorId) {
+export function draftToInsert(
+  draft: ActivityDraft,
+  outlineColorId: OutlineColorId,
+  photoPath: string | null = null,
+) {
   return {
     activity: draft.activity,
     details: { ...draft.details, imagePreviewUrl: null },
     outline_color: outlineColorId,
+    photo_path: photoPath,
   };
 }

@@ -10,6 +10,7 @@ import {
   type WorkoutDetails,
 } from "@outlyne/core";
 import { BodyMap } from "@/components/body-map";
+import { PhotoField } from "@/components/photo-field";
 import { Button, Chip, ChipRow, Field, Label, Screen, Title } from "@/components/ui";
 import { useDraft } from "@/store/draft";
 import { theme } from "@/theme";
@@ -37,6 +38,12 @@ export default function DetailsScreen() {
       ) : (
         <RecipeFields values={draft.details} onChange={(details) => setDraft({ activity: "recipe", details })} />
       )}
+      <PhotoField
+        uri={draft.details.imagePreviewUrl}
+        onChange={(imagePreviewUrl) =>
+          setDraft({ ...draft, details: { ...draft.details, imagePreviewUrl } } as ActivityDraft)
+        }
+      />
       <Button
         title="Generate"
         onPress={() => router.push("/generate/customize")}

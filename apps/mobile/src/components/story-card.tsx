@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ImageBackground, StyleSheet, Text, View } from "react-native";
 import { BodyMap } from "@/components/body-map";
 import { Icon } from "@/components/icon";
 import {
@@ -51,9 +51,16 @@ export function StoryCard({ draft, outlineColorId, width }: StoryCardProps) {
   const color = getOutlineColor(outlineColorId).hex;
   const height = (width * STORY_EXPORT.height) / STORY_EXPORT.width;
   const { details } = draft;
+  const photoUri = details.imagePreviewUrl;
+  // With a photo the card is full-bleed (like the web "photo card"); without
+  // one it stays a transparent overlay for compositing in Stories.
+  const Frame = photoUri ? ImageBackground : View;
+  const frameProps = photoUri
+    ? { source: { uri: photoUri }, resizeMode: "cover" as const }
+    : {};
 
   return (
-    <View style={[styles.card, { width, height }]}>
+    <Frame {...frameProps} style={[styles.card, { width, height }]}>
       {draft.activity !== "workout" ? (
         <View style={styles.icon}>
           <Icon name={draft.activity} color={color} size={width * 0.2} />
@@ -121,7 +128,7 @@ export function StoryCard({ draft, outlineColorId, width }: StoryCardProps) {
         <Icon name="logo" color={color} size={18} />
         <Text style={[styles.brand, { color }]}>OUTLYNE</Text>
       </View>
-    </View>
+    </Frame>
   );
 }
 

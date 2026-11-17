@@ -35,7 +35,10 @@ never pulls a second copy.
    Supabase dashboard (SQL Editor → New query → Run). It creates the `cards`
    table, row level security so users only see their own cards, and the
    20-card free limit.
-3. Make sign-in emails carry a code: Authentication → Emails → Magic Link
+3. Run `supabase/migrations/20261117010000_card_photos.sql` the same way. It
+   creates the private `card-photos` storage bucket, where each user can only
+   read, upload, and delete photos in their own folder.
+4. Make sign-in emails carry a code: Authentication → Emails → Magic Link
    template, and add `{{ .Token }}` (for example `Your Outlyne code: {{ .Token }}`).
 
 Sign-in uses a one-time email code (6 to 10 digits, per the Supabase OTP length setting), which works in Expo Go. Sign in with Apple
