@@ -38,5 +38,5 @@ never pulls a second copy.
 3. Make sign-in emails carry a code: Authentication → Emails → Magic Link
    template, and add `{{ .Token }}` (for example `Your Outlyne code: {{ .Token }}`).
 
-Sign-in uses a 6-digit email code, which works in Expo Go. Sign in with Apple
+Sign-in uses a one-time email code (6 to 10 digits, per the Supabase OTP length setting), which works in Expo Go. Sign in with Apple
 needs an Apple Developer account and a development build, and comes later.

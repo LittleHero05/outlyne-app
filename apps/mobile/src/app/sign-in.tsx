@@ -8,7 +8,12 @@ import { theme } from "@/theme";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Two steps: email, then the 6-digit code Supabase emails. */
+/**
+ * Two steps: email, then the one-time code Supabase emails. The code length
+ * is a Supabase project setting (6 to 10 digits), so accept that whole range.
+ */
+const CODE_MIN = 6;
+const CODE_MAX = 10;
 export default function SignInScreen() {
   const [step, setStep] = useState<"email" | "code">("email");
   const [email, setEmail] = useState("");
@@ -39,7 +44,7 @@ export default function SignInScreen() {
     setError("");
     const { error: verifyError } = await supabase.auth.verifyOtp({
       email,
-      token: code.trim(),
+      token: code,
       type: "email",
     });
     setBusy(false);
@@ -56,7 +61,7 @@ export default function SignInScreen() {
       <Subtitle>
         {step === "email"
           ? `Save up to ${FREE_CARD_LIMIT} cards and find them on any device.`
-          : `We sent a 6-digit code to ${email}.`}
+          : `We sent a sign-in code to ${email}.`}
       </Subtitle>
 
       {step === "email" ? (
@@ -74,13 +79,13 @@ export default function SignInScreen() {
       ) : (
         <Field
           label="Code"
-          placeholder="123456"
+          placeholder="Enter the code"
           keyboardType="number-pad"
           autoComplete="one-time-code"
           textContentType="oneTimeCode"
-          maxLength={6}
+          maxLength={CODE_MAX}
           value={code}
-          onChangeText={setCode}
+          onChangeText={(text) => setCode(text.replace(/\D/g, ""))}
           onSubmitEditing={verifyCode}
         />
       )}
@@ -98,7 +103,7 @@ export default function SignInScreen() {
           <Button
             title={busy ? "Checking…" : "Sign in"}
             onPress={verifyCode}
-            disabled={busy || code.trim().length < 6}
+            disabled={busy || code.length < CODE_MIN}
           />
           <Button
             title="Use a different email"
