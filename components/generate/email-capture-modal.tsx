@@ -40,6 +40,18 @@ export function EmailCaptureModal({
   variant = "download",
   onClose,
 }: EmailCaptureModalProps) {
+  if (!open) return null;
+  // Mounting the dialog fresh each time resets its form state.
+  return <EmailCaptureDialog variant={variant} onClose={onClose} />;
+}
+
+function EmailCaptureDialog({
+  variant,
+  onClose,
+}: {
+  variant: EmailCaptureVariant;
+  onClose: () => void;
+}) {
   const titleId = useId();
   const descId = useId();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -49,12 +61,6 @@ export function EmailCaptureModal({
   const copy = COPY[variant];
 
   useEffect(() => {
-    if (!open) return;
-
-    setEmail("");
-    setStatus("idle");
-    setMessage("");
-
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const timer = window.setTimeout(() => inputRef.current?.focus(), 50);
@@ -72,7 +78,7 @@ export function EmailCaptureModal({
       window.clearTimeout(timer);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [open, onClose]);
+  }, [onClose]);
 
   function handleDismiss() {
     markEmailCaptureDone("dismissed");
@@ -112,8 +118,6 @@ export function EmailCaptureModal({
       setMessage("Network error. Please try again.");
     }
   }
-
-  if (!open) return null;
 
   return (
     <div

@@ -1,19 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { ActivityForm } from "@/components/generate/activity-form";
 import { ActivitySelect } from "@/components/generate/activity-select";
-import { ComingSoonActivity } from "@/components/generate/coming-soon-activity";
 import { CustomizeStep } from "@/components/generate/customize-step";
 import { GenerateHeader } from "@/components/generate/generate-header";
 import { PreviewStep } from "@/components/generate/preview-step";
-import { ReadingForm } from "@/components/generate/reading-form";
 import { DEFAULT_OUTLINE_COLOR_ID } from "@/lib/customize";
 import {
-  EMPTY_READING_DETAILS,
+  createEmptyDraft,
+  type ActivityDraft,
   type ActivityType,
   type CustomizeOptions,
   type GeneratorStep,
-  type ReadingDetails,
 } from "@/types";
 
 const DEFAULT_CUSTOMIZE: CustomizeOptions = {
@@ -22,25 +21,21 @@ const DEFAULT_CUSTOMIZE: CustomizeOptions = {
 
 export function GenerateFlow() {
   const [step, setStep] = useState<GeneratorStep>("select");
-  const [activity, setActivity] = useState<ActivityType | null>(null);
-  const [readingDetails, setReadingDetails] = useState<ReadingDetails>(
-    EMPTY_READING_DETAILS,
-  );
+  const [draft, setDraft] = useState<ActivityDraft | null>(null);
   const [customize, setCustomize] =
     useState<CustomizeOptions>(DEFAULT_CUSTOMIZE);
 
   function resetToSelect() {
-    if (readingDetails.imagePreviewUrl) {
-      URL.revokeObjectURL(readingDetails.imagePreviewUrl);
+    if (draft?.details.imagePreviewUrl) {
+      URL.revokeObjectURL(draft.details.imagePreviewUrl);
     }
     setStep("select");
-    setActivity(null);
-    setReadingDetails(EMPTY_READING_DETAILS);
+    setDraft(null);
     setCustomize(DEFAULT_CUSTOMIZE);
   }
 
-  function handleSelect(nextActivity: ActivityType) {
-    setActivity(nextActivity);
+  function handleSelect(activity: ActivityType) {
+    setDraft(createEmptyDraft(activity));
     setStep("details");
   }
 
@@ -73,39 +68,29 @@ export function GenerateFlow() {
       />
 
       <main className="flex-1">
-        {step === "select" ? (
+        {step === "select" || !draft ? (
           <ActivitySelect onSelect={handleSelect} />
-        ) : null}
-
-        {step === "details" && activity === "reading" ? (
-          <ReadingForm
-            values={readingDetails}
-            onChange={setReadingDetails}
+        ) : step === "details" ? (
+          <ActivityForm
+            draft={draft}
+            onChange={setDraft}
             onSubmit={() => setStep("customize")}
           />
-        ) : null}
-
-        {step === "details" && activity && activity !== "reading" ? (
-          <ComingSoonActivity activity={activity} onBack={resetToSelect} />
-        ) : null}
-
-        {step === "customize" ? (
+        ) : step === "customize" ? (
           <CustomizeStep
-            details={readingDetails}
+            draft={draft}
             options={customize}
             onChange={setCustomize}
             onContinue={() => setStep("preview")}
           />
-        ) : null}
-
-        {step === "preview" ? (
+        ) : (
           <PreviewStep
-            details={readingDetails}
+            draft={draft}
             outlineColorId={customize.outlineColorId}
             onBack={() => setStep("customize")}
             onRestart={resetToSelect}
           />
-        ) : null}
+        )}
       </main>
     </div>
   );

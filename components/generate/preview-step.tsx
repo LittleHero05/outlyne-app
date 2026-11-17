@@ -6,32 +6,39 @@ import {
   EmailCaptureModal,
   type EmailCaptureVariant,
 } from "@/components/generate/email-capture-modal";
-import { ReadingCard } from "@/components/generate/reading-card";
+import { ActivityCard } from "@/components/generate/activity-card";
 import { downloadCardPng } from "@/lib/download-image";
 import { shouldAskForEmailCapture } from "@/lib/post-download-email";
 import type { OutlineColorId } from "@/lib/customize";
-import type { ReadingDetails } from "@/types";
+import type { ActivityDraft } from "@/types";
 import { cn } from "@/lib/utils";
 
 type PreviewStepProps = {
-  details: ReadingDetails;
+  draft: ActivityDraft;
   outlineColorId: OutlineColorId;
   onBack: () => void;
   onRestart: () => void;
 };
 
-function slugify(value: string) {
+function slugify(value: string, fallback: string) {
   return (
     value
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "")
-      .slice(0, 40) || "reading"
+      .slice(0, 40) || fallback
+  );
+}
+
+function isMobileUserAgent() {
+  return (
+    typeof navigator !== "undefined" &&
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
   );
 }
 
 export function PreviewStep({
-  details,
+  draft,
   outlineColorId,
   onBack,
   onRestart,
@@ -40,7 +47,9 @@ export function PreviewStep({
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
   const [hint, setHint] = useState("");
-  const [mobile, setMobile] = useState(false);
+  // Preview never renders on the server (it is behind user interaction), so
+  // reading the UA during the initial render cannot cause a hydration mismatch.
+  const [mobile] = useState(isMobileUserAgent);
   const [emailVariant, setEmailVariant] =
     useState<EmailCaptureVariant | null>(null);
   const restartAfterEmailClose = useRef(false);
@@ -52,10 +61,6 @@ export function PreviewStep({
       emailPromptTimeoutRef.current = null;
     }
   }
-
-  useEffect(() => {
-    setMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
-  }, []);
 
   useEffect(() => {
     return () => clearEmailPromptTimeout();
@@ -90,7 +95,7 @@ export function PreviewStep({
     try {
       const result = await downloadCardPng(
         cardRef.current,
-        `outlyne-${slugify(details.title)}.png`,
+        `outlyne-${draft.activity}-${slugify(draft.details.title, draft.activity)}.png`,
         // Always export with alpha — no page fill behind the overlay.
         { transparentBackground: true },
       );
@@ -133,9 +138,9 @@ export function PreviewStep({
 
       {/* Checkerboard is outside the export node so PNG stays fully transparent */}
       <div className="mx-auto mt-10 w-full max-w-[320px] rounded-[40px] bg-[linear-gradient(45deg,#d7e8f8_25%,transparent_25%,transparent_75%,#d7e8f8_75%),linear-gradient(45deg,#d7e8f8_25%,transparent_25%,transparent_75%,#d7e8f8_75%)] bg-[length:20px_20px] bg-[position:0_0,10px_10px]">
-        <ReadingCard
+        <ActivityCard
           ref={cardRef}
-          details={details}
+          draft={draft}
           outlineColorId={outlineColorId}
         />
       </div>

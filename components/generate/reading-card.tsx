@@ -1,10 +1,16 @@
 "use client";
 
 import { forwardRef } from "react";
-import { ActivityIcon } from "@/components/icons/activity-icon";
+import {
+  CardShell,
+  Headline,
+  Stat,
+  statLabelClassName,
+  tightPairClassName,
+} from "@/components/generate/card-primitives";
 import { BRAND } from "@/lib/assets";
 import { getActivity } from "@/lib/activities";
-import { STORY_EXPORT, getOutlineColor } from "@/lib/customize";
+import { getOutlineColor } from "@/lib/customize";
 import type { OutlineColorId } from "@/lib/customize";
 import type { ReadingDetails } from "@/types";
 import { cn } from "@/lib/utils";
@@ -15,7 +21,7 @@ type ReadingCardProps = {
   className?: string;
 };
 
-function readingPace(pagesRead: string, time: string): string | null {
+export function readingPace(pagesRead: string, time: string): string | null {
   const pages = Number(pagesRead);
   if (!Number.isFinite(pages) || pages <= 0) return null;
 
@@ -37,18 +43,7 @@ export function formatRating(rating: string): string {
   return `${trimmed}/5`;
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="min-w-0 text-center">
-      <p className="text-[0.7rem] font-semibold opacity-90 sm:text-xs">{label}</p>
-      <p className="mt-1 whitespace-nowrap text-base font-semibold sm:text-lg">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function RatingLockup({
+export function RatingLockup({
   rating,
   color,
 }: {
@@ -83,104 +78,55 @@ function RatingLockup({
   );
 }
 
-/** Figma: Pages/Time sit close together as a centered pair, not full-width halves */
-const tightPairClassName = "mt-5 inline-grid grid-cols-2 gap-x-3 sm:gap-x-4";
+export function RatingStat({ rating, color }: { rating: string; color: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <p className={statLabelClassName}>Rating</p>
+      <div className="mt-1">
+        <RatingLockup rating={rating} color={color} />
+      </div>
+    </div>
+  );
+}
 
-/**
- * Transparent Story overlay — no card fill, border, or scrim.
- * Optional photo is full-bleed content behind the stats (not a “frame”).
- */
 export const ReadingCard = forwardRef<HTMLElement, ReadingCardProps>(
   function ReadingCard({ details, outlineColorId, className }, ref) {
     const activity = getActivity("reading");
-    const outline = getOutlineColor(outlineColorId);
+    const color = getOutlineColor(outlineColorId).hex;
     const pace = readingPace(details.pagesRead, details.time);
     const rating = details.rating.trim() ? formatRating(details.rating) : null;
-    const hasPhoto = Boolean(details.imagePreviewUrl);
-    // Overlay ink always follows customize color (readable on photos the user chose).
-    const contentColor = outline.hex;
 
     return (
-      <article
+      <CardShell
         ref={ref}
-        className={cn("relative w-full bg-transparent", className)}
-        aria-label="Reading overlay preview"
-        style={{ aspectRatio: STORY_EXPORT.cssRatio }}
+        ariaLabel="Reading overlay preview"
+        iconSrc={activity.iconSrc}
+        color={color}
+        imagePreviewUrl={details.imagePreviewUrl}
+        className={className}
       >
-        <div
-          className="relative flex h-full w-full flex-col items-center justify-center px-6 py-10 text-center"
-          style={{
-            ...(hasPhoto
-              ? {
-                  backgroundImage: `url(${details.imagePreviewUrl})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                }
-              : undefined),
-            color: contentColor,
-          }}
-        >
-          <div className="relative z-10 flex w-full flex-col items-center">
-            <ActivityIcon
-              src={activity.iconSrc}
-              alt=""
-              color={outline.hex}
-              className="mb-6 h-16 w-16 sm:h-20 sm:w-20"
-            />
-            <p className="text-[0.7rem] font-semibold opacity-90 sm:text-xs">
-              Book title
-            </p>
-            <p className="mt-1 text-lg font-semibold leading-tight sm:text-xl">
-              {details.title || "Untitled"}
-            </p>
+        <Headline label="Book title" value={details.title || "Untitled"} />
 
-            <div className={tightPairClassName}>
-              <Stat label="Pages" value={details.pagesRead || "—"} />
-              <Stat label="Time" value={details.time || "—"} />
-            </div>
-
-            {pace && rating ? (
-              <div className={cn(tightPairClassName, "items-end")}>
-                <Stat label="Pace" value={pace} />
-                <div className="flex flex-col items-center">
-                  <p className="text-[0.7rem] font-semibold opacity-90 sm:text-xs">
-                    Rating
-                  </p>
-                  <div className="mt-1">
-                    <RatingLockup rating={rating} color={outline.hex} />
-                  </div>
-                </div>
-              </div>
-            ) : pace ? (
-              <div className="mt-5 w-full">
-                <Stat label="Pace" value={pace} />
-              </div>
-            ) : rating ? (
-              <div className="mt-5 flex flex-col items-center">
-                <p className="text-[0.7rem] font-semibold opacity-90 sm:text-xs">
-                  Rating
-                </p>
-                <div className="mt-1">
-                  <RatingLockup rating={rating} color={outline.hex} />
-                </div>
-              </div>
-            ) : null}
-
-            {/* Brand mark under stats — survives transparent exports better than top-left */}
-            <div className="mt-8 flex flex-col items-center gap-1">
-              <ActivityIcon
-                src={BRAND.logoMark}
-                alt=""
-                color={outline.hex}
-                className="size-5 sm:size-6"
-              />
-              <p className="text-[8px] font-semibold uppercase tracking-[0.2em] opacity-80 sm:text-[9px]">
-                Outlyne
-              </p>
-            </div>
-          </div>
+        <div className={tightPairClassName}>
+          <Stat label="Pages" value={details.pagesRead || "—"} />
+          <Stat label="Time" value={details.time || "—"} />
         </div>
-      </article>
+
+        {pace && rating ? (
+          <div className={cn(tightPairClassName, "items-end")}>
+            <Stat label="Pace" value={pace} />
+            <RatingStat rating={rating} color={color} />
+          </div>
+        ) : pace ? (
+          <div className="mt-5 w-full">
+            <Stat label="Pace" value={pace} />
+          </div>
+        ) : rating ? (
+          <div className="mt-5">
+            <RatingStat rating={rating} color={color} />
+          </div>
+        ) : null}
+      </CardShell>
     );
   },
 );

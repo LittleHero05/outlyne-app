@@ -1,20 +1,20 @@
 "use client";
 
 import { buttonVariants } from "@/components/ui/button";
-import { ReadingCard } from "@/components/generate/reading-card";
+import { ActivityCard } from "@/components/generate/activity-card";
 import { OUTLINE_COLORS, type OutlineColorId } from "@/lib/customize";
-import type { CustomizeOptions, ReadingDetails } from "@/types";
+import type { ActivityDraft, CustomizeOptions } from "@/types";
 import { cn } from "@/lib/utils";
 
 type CustomizeStepProps = {
-  details: ReadingDetails;
+  draft: ActivityDraft;
   options: CustomizeOptions;
   onChange: (options: CustomizeOptions) => void;
   onContinue: () => void;
 };
 
 export function CustomizeStep({
-  details,
+  draft,
   options,
   onChange,
   onContinue,
@@ -33,8 +33,8 @@ export function CustomizeStep({
       </p>
 
       <div className="mx-auto mt-8 w-full max-w-[320px] rounded-[40px] bg-[linear-gradient(45deg,#d7e8f8_25%,transparent_25%,transparent_75%,#d7e8f8_75%),linear-gradient(45deg,#d7e8f8_25%,transparent_25%,transparent_75%,#d7e8f8_75%)] bg-[length:20px_20px] bg-[position:0_0,10px_10px]">
-        <ReadingCard
-          details={details}
+        <ActivityCard
+          draft={draft}
           outlineColorId={options.outlineColorId}
         />
       </div>
