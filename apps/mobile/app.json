@@ -25,7 +25,16 @@
     },
     "scheme": "outlyne",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-media-library",
+        {
+          "savePhotosPermission": "Outlyne saves your overlay cards to your photo library.",
+          "granularPermissions": [
+            "photo"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
