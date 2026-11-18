@@ -26,7 +26,7 @@ export function CtaSection() {
             Get Started Now
             <ArrowRight className="size-6" aria-hidden />
           </Link>
-          <p className="text-sm text-outlyne-muted">Free. No account needed.</p>
+          <p className="text-sm text-outlyne-muted">Free. Sign in only if you want to save cards.</p>
         </div>
       </div>
     </section>

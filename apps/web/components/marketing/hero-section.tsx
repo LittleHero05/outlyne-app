@@ -42,7 +42,7 @@ export function HeroSection() {
             </h1>
             <p className="mt-6 max-w-2xl text-xl leading-snug text-outlyne-text sm:text-2xl lg:text-[28px]">
               Type in what you did. Get a clean, Story-ready overlay for
-              reading, workouts, habits and recipes. No account needed.
+              reading, workouts, habits and recipes. No account needed to start.
             </p>
             <Link
               href="/generate"

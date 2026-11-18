@@ -1,6 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "@/components/auth/auth-provider";
+import { SignInDialog } from "@/components/auth/sign-in-dialog";
+import { saveCard } from "@/lib/cards";
 import { buttonVariants } from "@/components/ui/button";
 import {
   EmailCaptureModal,
@@ -17,6 +21,11 @@ type PreviewStepProps = {
   outlineColorId: OutlineColorId;
   onBack: () => void;
   onRestart: () => void;
+  /** True when this exact card is already in My cards. */
+  alreadySaved: boolean;
+  /** Stored photo of a reopened card, copied on re-save instead of re-uploaded. */
+  savedPhotoPath: string | null;
+  onSaved: () => void;
 };
 
 function slugify(value: string, fallback: string) {
@@ -41,7 +50,42 @@ export function PreviewStep({
   outlineColorId,
   onBack,
   onRestart,
+  alreadySaved,
+  savedPhotoPath,
+  onSaved,
 }: PreviewStepProps) {
+  const { session } = useAuth();
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ text: string; error?: boolean } | null>(null);
+  const [signInOpen, setSignInOpen] = useState(false);
+  const hasPhoto = Boolean(draft.details.imagePreviewUrl);
+  // Signed-in people already gave us their email; don't ask again.
+  const askForEmail = () => !session && shouldAskForEmailCapture();
+
+  async function runSave() {
+    setSaving(true);
+    setSaveMessage(null);
+    const result = await saveCard(draft, outlineColorId, savedPhotoPath);
+    setSaving(false);
+    if (result.ok) {
+      onSaved();
+      setSaveMessage({ text: "Saved to My cards." });
+    } else if (result.reason === "auth") {
+      setSignInOpen(true);
+    } else {
+      setSaveMessage({ text: result.message, error: true });
+    }
+  }
+
+  function handleSave() {
+    if (saving || alreadySaved) return;
+    if (!session) {
+      setSignInOpen(true);
+      return;
+    }
+    runSave();
+  }
+
   const cardRef = useRef<HTMLElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState("");
@@ -76,7 +120,7 @@ export function PreviewStep({
 
   function handleNewCard() {
     clearEmailPromptTimeout();
-    if (shouldAskForEmailCapture()) {
+    if (askForEmail()) {
       restartAfterEmailClose.current = true;
       setEmailVariant("new-card");
       return;
@@ -111,7 +155,7 @@ export function PreviewStep({
         );
       }
 
-      if (shouldAskForEmailCapture()) {
+      if (askForEmail()) {
         // Let the share sheet / download settle before showing the modal.
         clearEmailPromptTimeout();
         emailPromptTimeoutRef.current = window.setTimeout(() => {
@@ -145,8 +189,10 @@ export function PreviewStep({
       </div>
 
       <p className="mt-6 text-center text-sm text-outlyne-muted">
-        Story-sized PNG (1080 × 1920). On phone, use the share sheet to Save
-        Image.
+        {hasPhoto
+          ? "Story-sized PNG with your photo (1080 × 1920)."
+          : "Story-sized transparent PNG (1080 × 1920)."}{" "}
+        On phone, use the share sheet to Save Image.
       </p>
 
       {error ? (
@@ -198,6 +244,48 @@ export function PreviewStep({
           New card
         </button>
       </div>
+
+      <div className="mt-4 flex flex-col items-center gap-2">
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving || alreadySaved}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "h-[52px] min-w-[220px] rounded-[20px] border-outlyne-maroon/40 bg-transparent px-6 text-lg font-medium text-outlyne-maroon hover:bg-outlyne-surface disabled:opacity-70",
+          )}
+        >
+          {alreadySaved
+            ? "Saved to My cards"
+            : saving
+              ? "Saving…"
+              : session
+                ? "Save to my cards"
+                : "Sign in to save"}
+        </button>
+        {saveMessage ? (
+          <p
+            className={cn("text-center text-sm", saveMessage.error ? "text-red-700" : "text-outlyne-text")}
+            role={saveMessage.error ? "alert" : "status"}
+          >
+            {saveMessage.text}{" "}
+            {!saveMessage.error ? (
+              <Link href="/cards" className="font-medium text-outlyne-maroon underline-offset-4 hover:underline">
+                View My cards
+              </Link>
+            ) : null}
+          </p>
+        ) : null}
+      </div>
+
+      <SignInDialog
+        open={signInOpen}
+        onClose={() => setSignInOpen(false)}
+        onSignedIn={() => {
+          setSignInOpen(false);
+          runSave();
+        }}
+      />
 
       <EmailCaptureModal
         open={emailVariant !== null}

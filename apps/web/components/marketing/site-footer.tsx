@@ -27,6 +27,14 @@ export function SiteFooter() {
           >
             @outlyneapp
           </Link>
+          <nav aria-label="Legal" className="flex gap-4 text-sm">
+            <Link href="/privacy" className="text-outlyne-text underline-offset-4 hover:underline">
+              Privacy
+            </Link>
+            <Link href="/terms" className="text-outlyne-text underline-offset-4 hover:underline">
+              Terms
+            </Link>
+          </nav>
           <p className="text-sm text-outlyne-muted">
             © {year} {SITE.name}. All rights reserved.
           </p>

@@ -34,7 +34,7 @@ export function Logo({
           alt="Outlyne"
           width={102}
           height={26}
-          className="h-7 w-auto shrink-0"
+          className="h-7 w-auto shrink-0 max-[359px]:hidden"
           priority
         />
       ) : null}

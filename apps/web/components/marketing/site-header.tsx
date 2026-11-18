@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { useAuth } from "@/components/auth/auth-provider";
 import { Logo } from "@/components/marketing/logo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,12 @@ const NAV_LINKS = [
 
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { session, loading } = useAuth();
+  const account = loading
+    ? null
+    : session
+      ? { href: "/cards", label: "My cards" }
+      : { href: "/sign-in?next=/cards", label: "Sign in" };
 
   return (
     <header className="sticky top-0 z-50 bg-outlyne-blue/95 backdrop-blur-sm">
@@ -34,6 +41,14 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
+          {account ? (
+            <Link
+              href={account.href}
+              className="text-sm font-medium uppercase tracking-[0.2em] text-outlyne-maroon transition-opacity hover:opacity-70"
+            >
+              {account.label}
+            </Link>
+          ) : null}
           <Link
             href="/generate"
             className={cn(
@@ -86,6 +101,17 @@ export function SiteHeader() {
                 </Link>
               </li>
             ))}
+            {account ? (
+              <li>
+                <Link
+                  href={account.href}
+                  className="block text-sm font-medium uppercase tracking-[0.2em] text-outlyne-maroon"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {account.label}
+                </Link>
+              </li>
+            ) : null}
           </ul>
         </nav>
       ) : null}

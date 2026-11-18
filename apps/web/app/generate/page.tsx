@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { GenerateFlow } from "@/components/generate/generate-flow";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function GeneratePage() {
-  return <GenerateFlow />;
+  return (
+    <Suspense fallback={null}>
+      <GenerateFlow />
+    </Suspense>
+  );
 }
