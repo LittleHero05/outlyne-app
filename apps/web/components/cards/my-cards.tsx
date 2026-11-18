@@ -100,8 +100,9 @@ function DeleteAccount({ cardCount }: { cardCount: number }) {
     <div className="w-full max-w-sm rounded-[22px] border border-red-200 bg-white/70 p-5 text-left">
       <p className="font-medium text-outlyne-text">Delete your account?</p>
       <p className="mt-1 text-sm text-outlyne-muted">
-        This permanently removes your account, your {cardCount} saved{" "}
-        {cardCount === 1 ? "card" : "cards"} and any photos. It can&apos;t be undone.
+        {`This permanently removes your account, your ${cardCount} saved ${
+          cardCount === 1 ? "card" : "cards"
+        } and any photos. It can't be undone.`}
       </p>
       {error ? (
         <p className="mt-2 text-sm text-red-700" role="alert">
