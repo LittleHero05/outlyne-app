@@ -1,7 +1,7 @@
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import { FREE_CARD_LIMIT, rowToDraft } from "@outlyne/core";
+import { FREE_CARD_LIMIT, previewBackdrop, rowToDraft } from "@outlyne/core";
 import { CardThumb } from "@/components/card-thumb";
 import { Button, Screen, Subtitle, Title } from "@/components/ui";
 import { deleteCard, listCards, type SavedCard } from "@/lib/cards";
@@ -87,7 +87,11 @@ export default function SavedCardsScreen() {
             accessibilityHint="Long press to delete"
             onPress={() => open(row)}
             onLongPress={() => confirmDelete(row)}
-            style={({ pressed }) => [styles.thumb, pressed && { opacity: 0.85 }]}
+            style={({ pressed }) => [
+              styles.thumb,
+              { backgroundColor: previewBackdrop(row.outline_color).check },
+              pressed && { opacity: 0.85 },
+            ]}
           >
             <CardThumb
               draft={rowToDraft(row, row.photoUrl)}
@@ -106,7 +110,7 @@ export default function SavedCardsScreen() {
 
 const styles = StyleSheet.create({
   grid: { flexDirection: "row", flexWrap: "wrap", gap: theme.space.md, justifyContent: "center" },
-  thumb: { borderRadius: 20, overflow: "hidden", backgroundColor: "#d7e8f8" },
+  thumb: { borderRadius: 20, overflow: "hidden" },
   empty: { textAlign: "center", color: theme.colors.text, marginVertical: theme.space.lg },
   error: { textAlign: "center", color: "#b3261e", marginBottom: theme.space.md },
   account: {

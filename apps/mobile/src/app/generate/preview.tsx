@@ -1,6 +1,7 @@
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useRef, useState, type ComponentRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { previewBackdrop } from "@outlyne/core";
 import { StoryCard } from "@/components/story-card";
 import { Button, Screen, Title } from "@/components/ui";
 import { saveCard } from "@/lib/cards";
@@ -86,7 +87,7 @@ export default function PreviewScreen() {
       <Title>All achievements deserve to be shared…</Title>
 
       {/* Checkerboard-ish backdrop stays outside the captured node so the PNG is transparent. */}
-      <View style={styles.preview}>
+      <View style={[styles.preview, { backgroundColor: previewBackdrop(outlineColorId).check }]}>
         <View ref={cardRef} collapsable={false}>
           <StoryCard draft={draft} outlineColorId={outlineColorId} width={CARD_WIDTH} />
         </View>
@@ -149,7 +150,6 @@ const styles = StyleSheet.create({
   preview: {
     alignSelf: "center",
     borderRadius: theme.radius.xl,
-    backgroundColor: "#d7e8f8",
     overflow: "hidden",
   },
   note: { marginTop: theme.space.lg, textAlign: "center", color: theme.colors.muted, fontSize: 14 },

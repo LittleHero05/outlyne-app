@@ -13,6 +13,7 @@ import {
 import { ActivityCard } from "@/components/generate/activity-card";
 import { downloadCardPng } from "@/lib/download-image";
 import { shouldAskForEmailCapture } from "@/lib/post-download-email";
+import { checkerboardStyle } from "@/lib/backdrop";
 import { cn } from "@/lib/utils";
 import type { OutlineColorId, ActivityDraft } from "@outlyne/core";
 
@@ -180,7 +181,10 @@ export function PreviewStep({
       </h1>
 
       {/* Checkerboard is outside the export node so PNG stays fully transparent */}
-      <div className="mx-auto mt-10 w-full max-w-[320px] rounded-[40px] bg-[linear-gradient(45deg,#d7e8f8_25%,transparent_25%,transparent_75%,#d7e8f8_75%),linear-gradient(45deg,#d7e8f8_25%,transparent_25%,transparent_75%,#d7e8f8_75%)] bg-[length:20px_20px] bg-[position:0_0,10px_10px]">
+      <div
+        className="mx-auto mt-10 w-full max-w-[320px] overflow-hidden rounded-[40px]"
+        style={checkerboardStyle(outlineColorId)}
+      >
         <ActivityCard
           ref={cardRef}
           draft={draft}

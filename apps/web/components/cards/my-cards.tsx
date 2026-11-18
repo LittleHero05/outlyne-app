@@ -9,6 +9,7 @@ import { CardThumb } from "@/components/cards/card-thumb";
 import { buttonVariants } from "@/components/ui/button";
 import { deleteAccount, deleteCard, listCards, type SavedCard } from "@/lib/cards";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
+import { checkerboardStyle } from "@/lib/backdrop";
 import { cn } from "@/lib/utils";
 
 const THUMB_WIDTH = 150;
@@ -33,7 +34,8 @@ function SavedCardTile({
     <li className="flex flex-col items-center gap-2">
       <Link
         href={`/generate?card=${card.id}`}
-        className="overflow-hidden rounded-[22px] bg-[#d7e8f8] shadow-[0_4px_10px_rgba(17,2,41,0.12)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outlyne-maroon focus-visible:ring-offset-2 focus-visible:ring-offset-outlyne-blue"
+        style={checkerboardStyle(card.outline_color, 12)}
+        className="overflow-hidden rounded-[22px] shadow-[0_4px_10px_rgba(17,2,41,0.12)] transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-outlyne-maroon focus-visible:ring-offset-2 focus-visible:ring-offset-outlyne-blue"
         aria-label={`Open ${card.activity} card: ${title}`}
       >
         <CardThumb

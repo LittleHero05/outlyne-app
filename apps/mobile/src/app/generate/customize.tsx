@@ -1,6 +1,6 @@
 import { Redirect, router } from "expo-router";
 import { Pressable, StyleSheet, View } from "react-native";
-import { OUTLINE_COLORS } from "@outlyne/core";
+import { OUTLINE_COLORS, previewBackdrop } from "@outlyne/core";
 import { StoryCard } from "@/components/story-card";
 import { Button, Label, Screen, Subtitle, Title } from "@/components/ui";
 import { useDraft } from "@/store/draft";
@@ -17,7 +17,7 @@ export default function CustomizeScreen() {
       <Title>Customize</Title>
       <Subtitle>Pick an outline color for your Story overlay</Subtitle>
 
-      <View style={styles.preview}>
+      <View style={[styles.preview, { backgroundColor: previewBackdrop(outlineColorId).check }]}>
         <StoryCard draft={draft} outlineColorId={outlineColorId} width={CARD_WIDTH} />
       </View>
 
@@ -51,7 +51,6 @@ const styles = StyleSheet.create({
   preview: {
     alignSelf: "center",
     borderRadius: theme.radius.xl,
-    backgroundColor: "#d7e8f8",
     marginBottom: theme.space.xl,
     overflow: "hidden",
   },

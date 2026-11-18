@@ -26,6 +26,19 @@ export const OUTLINE_COLORS: OutlineColor[] = [
 
 export const DEFAULT_OUTLINE_COLOR_ID: OutlineColorId = "maroon";
 
+/** Outline colors too pale to read on the light preview backdrop. */
+const LIGHT_OUTLINES: OutlineColorId[] = ["white", "cloud", "sky"];
+
+/**
+ * Backdrop shown behind a transparent card preview (never exported).
+ * Pale outlines get a dark backdrop so the stats stay readable.
+ */
+export function previewBackdrop(id: OutlineColorId): { base: string; check: string } {
+  return LIGHT_OUTLINES.includes(id)
+    ? { base: "#2b2640", check: "#3a3452" }
+    : { base: "#b7d9ff", check: "#d7e8f8" };
+}
+
 export function getOutlineColor(id: OutlineColorId): OutlineColor {
   return (
     OUTLINE_COLORS.find((color) => color.id === id) ?? OUTLINE_COLORS[0]
