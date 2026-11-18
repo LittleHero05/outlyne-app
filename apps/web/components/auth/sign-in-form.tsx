@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useId, useState } from "react";
+import { FormEvent, useId, useRef, useState } from "react";
 import { FREE_CARD_LIMIT } from "@outlyne/core";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TURNSTILE_SITE_KEY, Turnstile, type TurnstileHandle } from "@/components/auth/turnstile";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils";
 
@@ -30,25 +31,48 @@ export function SignInForm({
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaFailed, setCaptchaFailed] = useState(false);
+  /** Set when "Send code" is pressed before the CAPTCHA has finished. */
+  const [waitingForCaptcha, setWaitingForCaptcha] = useState(false);
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
-  async function sendCode(event?: FormEvent) {
+  const CAPTCHA_FAILED = "We couldn't check your browser. Refresh the page and try again.";
+
+  async function sendCode(event?: FormEvent, freshToken?: string) {
     event?.preventDefault();
+    const token = freshToken ?? captchaToken;
     const trimmed = email.trim().toLowerCase();
     if (!EMAIL_PATTERN.test(trimmed)) {
       setError("Please enter a valid email address.");
       return;
     }
+    if (TURNSTILE_SITE_KEY && !token) {
+      if (captchaFailed) {
+        setError(CAPTCHA_FAILED);
+        return;
+      }
+      setError("");
+      setWaitingForCaptcha(true);
+      return;
+    }
+    setWaitingForCaptcha(false);
     setBusy(true);
     setError("");
     const { error: sendError } = await getBrowserSupabase().auth.signInWithOtp({
       email: trimmed,
+      options: token ? { captchaToken: token } : undefined,
     });
     setBusy(false);
+    // Each token works once, so get a fresh one for "Send a new code".
+    turnstileRef.current?.reset();
     if (sendError) {
       setError(
         sendError.status === 429
           ? "Please wait a minute before asking for another code."
-          : "Could not send the code. Please try again.",
+          : /captcha/i.test(sendError.message)
+            ? "We couldn't confirm you're human. Please try again."
+            : "Could not send the code. Please try again.",
       );
       return;
     }
@@ -105,8 +129,8 @@ export function SignInForm({
             className={fieldClassName}
             autoFocus
           />
-          <button type="submit" disabled={busy} className={primary}>
-            {busy ? "Sending…" : "Send code"}
+          <button type="submit" disabled={busy || waitingForCaptcha} className={primary}>
+            {busy || waitingForCaptcha ? "Sending…" : "Send code"}
           </button>
         </form>
       ) : (
@@ -143,7 +167,7 @@ export function SignInForm({
             <button
               type="button"
               className="text-outlyne-maroon underline-offset-4 hover:underline disabled:opacity-60"
-              disabled={busy}
+              disabled={busy || waitingForCaptcha}
               onClick={() => sendCode()}
             >
               Send a new code
@@ -151,6 +175,24 @@ export function SignInForm({
           </div>
         </form>
       )}
+
+      <Turnstile
+        ref={turnstileRef}
+        onToken={(token) => {
+          setCaptchaToken(token);
+          if (!token) return;
+          setCaptchaFailed(false);
+          // Finish a send that was waiting on the CAPTCHA.
+          if (waitingForCaptcha) void sendCode(undefined, token);
+        }}
+        onError={() => {
+          setCaptchaFailed(true);
+          if (waitingForCaptcha) {
+            setWaitingForCaptcha(false);
+            setError(CAPTCHA_FAILED);
+          }
+        }}
+      />
 
       {error ? (
         <p className="mt-3 text-sm text-red-700" role="alert">
