@@ -14,6 +14,10 @@ export function PhotoField({ uri, onChange }: PhotoFieldProps) {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       quality: 0.8,
+      // iPhone photos are often HEIC, which only Safari can show. "Compatible"
+      // makes iOS hand back a JPEG so saved cards open in every browser.
+      preferredAssetRepresentationMode:
+        ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Compatible,
     });
     if (!result.canceled) onChange(result.assets[0].uri);
   }

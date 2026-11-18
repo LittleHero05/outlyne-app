@@ -28,6 +28,37 @@ const EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
 };
 
+/** Formats every browser can show. Anything else (like iPhone HEIC) becomes JPEG. */
+const WEB_SAFE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+class UnreadablePhotoError extends Error {}
+
+/** Redraw a photo as JPEG. Works wherever this browser can display the photo. */
+async function toJpeg(blob: Blob): Promise<Blob> {
+  const objectUrl = URL.createObjectURL(blob);
+  try {
+    const image = new Image();
+    image.src = objectUrl;
+    // Chrome and Firefox can't read HEIC, so the photo can't be converted there.
+    await image.decode().catch(() => {
+      throw new UnreadablePhotoError("This browser can't read the photo");
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    canvas.getContext("2d")?.drawImage(image, 0, 0);
+    return await new Promise<Blob>((resolve, reject) =>
+      canvas.toBlob(
+        (jpeg) => (jpeg ? resolve(jpeg) : reject(new Error("Could not convert the photo"))),
+        "image/jpeg",
+        0.9,
+      ),
+    );
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
 function newPhotoPath(userId: string, contentType: string): string {
   const ext = EXTENSIONS[contentType] ?? "jpg";
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
@@ -56,8 +87,9 @@ async function storePhoto(
     return path;
   }
 
-  const blob = await fetch(url).then((response) => response.blob());
-  const contentType = EXTENSIONS[blob.type] ? blob.type : "image/jpeg";
+  const picked = await fetch(url).then((response) => response.blob());
+  const blob = WEB_SAFE_TYPES.has(picked.type) ? picked : await toJpeg(picked);
+  const contentType = blob.type;
   const path = newPhotoPath(userId, contentType);
   const { error } = await storage.upload(path, blob, { contentType, upsert: false });
   if (error) throw error;
@@ -79,7 +111,14 @@ export async function saveCard(
     photoPath = await storePhoto(userId, draft.details.imagePreviewUrl, savedPhotoPath);
   } catch (error) {
     console.error("Photo upload failed", error);
-    return { ok: false, reason: "error", message: "Could not upload the photo. Please try again." };
+    return {
+      ok: false,
+      reason: "error",
+      message:
+        error instanceof UnreadablePhotoError
+          ? "This browser can't read that photo. Try a JPEG or PNG, or save from Safari."
+          : "Could not upload the photo. Please try again.",
+    };
   }
 
   const { error } = await supabase.from("cards").insert(draftToInsert(draft, outlineColorId, photoPath));
